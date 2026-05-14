@@ -1,0 +1,4 @@
+fastapi
+uvicorn
+python-multipart
+# Add Qwen LLM dependencies here (e.g., transformers, qwen, etc.)
