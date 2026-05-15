@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import ReactMarkdown from "react-markdown";
 import "./App.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
@@ -7,9 +8,31 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001
 const starterMessages = [
   {
     sender: "ai",
-    text: "Upload your study files, then ask a question about the material.",
+    text: "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your channel of videos like:",
+    examples: [
+      "Explain this lecture",
+      "Quiz me",
+      "Summarize chapter 3",
+      "Find where the professor explained mitosis",
+      "What are key takeaways",
+    ],
   },
 ];
+
+function TokenUsage({ usage }) {
+  if (!usage) return null;
+
+  return (
+    <div className="token-usage">
+      {usage.label}: {usage.tokens.toLocaleString()} tokens
+      {usage.total ? ` • Total: ${usage.total.toLocaleString()}` : ""}
+      {usage.maxNewTokens ? ` • Limit: ${usage.maxNewTokens.toLocaleString()}` : ""}
+      {usage.retriedForQuality ? " • repaired format" : ""}
+      {usage.hitTokenLimit ? " • hit output limit" : ""}
+      {usage.estimated ? " • estimated" : ""}
+    </div>
+  );
+}
 
 function ChatAvatar({ sender }) {
   if (sender === "ai") {
@@ -20,7 +43,11 @@ function ChatAvatar({ sender }) {
     );
   }
 
-  return <div className="avatar avatar-user">You</div>;
+  return (
+    <div className="avatar avatar-user" aria-label="You">
+      <img src="/user-avatar.png" alt="" />
+    </div>
+  );
 }
 
 function App() {
@@ -38,7 +65,7 @@ function App() {
     if (!prompt || sending) return;
 
     const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 120000);
+    const timeoutId = window.setTimeout(() => controller.abort(), 240000);
 
     setInput("");
     setSending(true);
@@ -56,10 +83,45 @@ function App() {
       if (!res.ok) throw new Error("Chat request failed");
 
       const data = await res.json();
-      setChatHistory((history) => [
-        ...history,
-        { sender: "ai", text: data.response || "I did not receive a response." },
-      ]);
+      setChatHistory((history) => {
+        const nextHistory = [...history];
+        const usage = data.usage;
+        if (usage?.prompt_tokens != null) {
+          for (let index = nextHistory.length - 1; index >= 0; index -= 1) {
+            if (nextHistory[index].sender === "user" && nextHistory[index].text === prompt) {
+              nextHistory[index] = {
+                ...nextHistory[index],
+                tokenUsage: {
+                  label: "Request",
+                  tokens: usage.prompt_tokens,
+                  estimated: usage.estimated,
+                },
+              };
+              break;
+            }
+          }
+        }
+
+        nextHistory.push({
+          sender: "ai",
+          text: data.response || "I did not receive a response.",
+          sources: data.sources || [],
+          tokenUsage:
+            usage?.completion_tokens != null
+              ? {
+                  label: "Answer",
+                  tokens: usage.completion_tokens,
+                  total: usage.total_tokens,
+                  maxNewTokens: usage.max_new_tokens,
+                  retriedForQuality: usage.retried_for_quality,
+                  hitTokenLimit: usage.hit_token_limit,
+                  estimated: usage.estimated,
+                }
+              : null,
+        });
+
+        return nextHistory;
+      });
     } catch (error) {
       setStatus(
         error.name === "AbortError"
@@ -72,19 +134,14 @@ function App() {
     }
   };
 
-  const handleFileChange = (event) => {
-    setFiles(Array.from(event.target.files));
-    setStatus("");
-  };
-
-  const handleUpload = async () => {
-    if (!files.length || uploading) return;
+  const uploadFiles = async (selectedFiles) => {
+    if (!selectedFiles.length || uploading) return;
 
     setUploading(true);
     setStatus("");
 
     const formData = new FormData();
-    files.forEach((file) => formData.append("files", file));
+    selectedFiles.forEach((file) => formData.append("files", file));
     if (sessionId) formData.append("session_id", sessionId);
 
     try {
@@ -98,7 +155,13 @@ function App() {
       const data = await res.json();
       setSessionId(data.session_id);
       setFiles([]);
-      setStatus(`${files.length} file${files.length === 1 ? "" : "s"} ready for chat.`);
+      const addedChunks = data.added_chunk_count ?? data.chunk_count ?? 0;
+      const skippedCount = data.skipped_files?.length || 0;
+      const chunkLabel = addedChunks === 1 ? "source chunk" : "source chunks";
+      const skippedLabel = skippedCount
+        ? ` ${skippedCount} file${skippedCount === 1 ? " was" : "s were"} skipped because no readable text was found.`
+        : "";
+      setStatus(`${addedChunks} ${chunkLabel} indexed for retrieval.${skippedLabel}`);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       setStatus("Upload failed. Check that the API is running and accepts these files.");
@@ -107,51 +170,56 @@ function App() {
     }
   };
 
+  const handleFileChange = (event) => {
+    const selectedFiles = Array.from(event.target.files);
+    setFiles(selectedFiles);
+    uploadFiles(selectedFiles);
+  };
+
+  const openFilePicker = () => {
+    if (!uploading) fileInputRef.current?.click();
+  };
+
   return (
     <main className="phoenix-chat-shell">
       <section className="chat-panel">
-        <aside className="chat-sidebar">
-          <div>
-            <p className="eyebrow mb-2">Study Chat</p>
-            <h1>AthenAI</h1>
-            <p className="sidebar-copy mb-0">
-              Ask focused questions against uploaded class notes, transcripts, and study files.
-            </p>
-          </div>
-
-          <div className="upload-box">
-            <label className="form-label fw-semibold" htmlFor="study-files">
-              Study files
-            </label>
-            <input
-              id="study-files"
-              type="file"
-              multiple
-              accept=".txt,.json,.dfxp,.srt,.vtt,.zip"
-              onChange={handleFileChange}
-              ref={fileInputRef}
-              className="form-control"
-            />
-            <div className="d-flex align-items-center justify-content-between gap-3 mt-3">
-              <span className="small text-body-secondary text-truncate">
-                {files.length ? `${files.length} selected` : sessionId ? "Session active" : "No files selected"}
-              </span>
-              <button className="btn btn-phoenix-primary" onClick={handleUpload} disabled={!files.length || uploading}>
-                {uploading ? "Uploading" : "Upload"}
-              </button>
-            </div>
-          </div>
-        </aside>
-
         <section className="conversation-card">
           <header className="conversation-header">
             <div>
               <p className="eyebrow mb-1">Conversation</p>
-              <h2 className="mb-0">AthenAI</h2>
+              <h2 className="brand-heading mb-0">
+                <span className="brand-athen">Athen</span>
+                <span className="brand-ai">AI</span>
+              </h2>
             </div>
-            <span className={`status-pill ${sessionId ? "active" : ""}`}>
-              {sessionId ? "Files indexed" : "Waiting for files"}
-            </span>
+            <input
+              id="source-files"
+              type="file"
+              multiple
+              accept=".txt,.md,.csv,.json,.dfxp,.srt,.vtt,.pdf,.docx,.pptx,.zip"
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              className="file-upload-input"
+            />
+            <button
+              type="button"
+              className={`status-pill ${sessionId ? "active" : ""}`}
+              onClick={openFilePicker}
+              disabled={uploading}
+              aria-describedby="upload-files-tooltip"
+            >
+              <span className="status-pill-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false">
+                  <path d="M12 3 7 8h3v6h4V8h3l-5-5Z" />
+                  <path d="M5 14v5h14v-5h-2v3H7v-3H5Z" />
+                </svg>
+              </span>
+              {uploading ? `Uploading ${files.length || ""}`.trim() : "Upload Additional Files"}
+              <span id="upload-files-tooltip" className="upload-tooltip" role="tooltip">
+                Upload your own notes or other materials to help AthenAI answer questions. Examples:
+                text, Word, PowerPoint, PDF.
+              </span>
+            </button>
           </header>
 
           <div className="message-list" aria-live="polite">
@@ -160,7 +228,29 @@ function App() {
                 <ChatAvatar sender={msg.sender} />
                 <div className="message-bubble">
                   <span className="message-name">{msg.sender === "user" ? "You" : "AthenAI"}</span>
-                  <p>{msg.text}</p>
+                  <div className="message-markdown">
+                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                  </div>
+                  <TokenUsage usage={msg.tokenUsage} />
+                  {msg.examples?.length > 0 && (
+                    <ul className="prompt-examples">
+                      {msg.examples.map((example) => (
+                        <li key={example}>"{example}"</li>
+                      ))}
+                    </ul>
+                  )}
+                  {msg.sources?.length > 0 && (
+                    <div className="source-list" aria-label="Retrieved sources">
+                      {msg.sources.map((source, sourceIndex) => (
+                        <details key={source.id || `${source.filename}-${sourceIndex}`}>
+                          <summary>
+                            [{sourceIndex + 1}] {source.filename}
+                          </summary>
+                          <p>{source.preview}</p>
+                        </details>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </article>
             ))}

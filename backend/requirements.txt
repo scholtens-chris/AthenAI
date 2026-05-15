@@ -1,4 +1,9 @@
 fastapi
 uvicorn
 python-multipart
-# Add Qwen LLM dependencies here (e.g., transformers, qwen, etc.)
+torch
+transformers>=4.51.0
+accelerate
+pypdf
+python-docx
+python-pptx
