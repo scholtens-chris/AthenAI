@@ -1,0 +1,5 @@
+.coverage
+backend/.coverage
+backend/htmlcov/
+frontend/node_modules/
+backend/.athenai_sessions/

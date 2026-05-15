@@ -1,9 +1,20 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ReactMarkdown from "react-markdown";
 import "./App.css";
+import athenaiAvatarSvg from "./assets/athenai-avatar.svg?raw";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
+const SESSION_STORAGE_KEY = "athenai.session.v1";
+const SESSION_TTL_MS = Number(import.meta.env.VITE_SESSION_TTL_HOURS || 12) * 60 * 60 * 1000;
+
+function logClientError(operation, error, details = {}) {
+  console.error("[AthenAI]", operation, {
+    ...details,
+    message: error?.message,
+    name: error?.name,
+  });
+}
 
 const starterMessages = [
   {
@@ -18,6 +29,25 @@ const starterMessages = [
     ],
   },
 ];
+
+function loadStoredSession() {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(SESSION_STORAGE_KEY) || "null");
+    if (!stored || stored.expiresAt <= Date.now()) {
+      window.localStorage.removeItem(SESSION_STORAGE_KEY);
+      return null;
+    }
+    return stored;
+  } catch (error) {
+    logClientError("loadStoredSession failed", error);
+    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    return null;
+  }
+}
+
+function isStarterOnly(history) {
+  return history.length === starterMessages.length && history[0]?.text === starterMessages[0].text;
+}
 
 function TokenUsage({ usage }) {
   if (!usage) return null;
@@ -34,11 +64,19 @@ function TokenUsage({ usage }) {
   );
 }
 
-function ChatAvatar({ sender }) {
+function ChatAvatar({ sender, thinking = false }) {
   if (sender === "ai") {
     return (
-      <div className="avatar avatar-ai" aria-label="AthenAI">
-        <img src="/athenai-avatar.png" alt="" />
+      <div className={`avatar avatar-ai ${thinking ? "is-thinking" : ""}`} aria-label="AthenAI">
+        <span className="avatar-ai-art" aria-hidden="true">
+          <span className="avatar-ai-svg" dangerouslySetInnerHTML={{ __html: athenaiAvatarSvg }} />
+          {thinking && (
+            <svg className="athenai-blink" viewBox="0 0 666.92 760.88" focusable="false">
+              <ellipse className="athenai-eyelid" cx="210.55" cy="367.96" rx="71.12" ry="71.12" />
+              <ellipse className="athenai-eyelid" cx="459.36" cy="367.1" rx="70.61" ry="70.61" />
+            </svg>
+          )}
+        </span>
       </div>
     );
   }
@@ -51,14 +89,55 @@ function ChatAvatar({ sender }) {
 }
 
 function App() {
-  const [chatHistory, setChatHistory] = useState(starterMessages);
+  const storedSession = useRef(loadStoredSession());
+  const shouldRestoreSession = useRef(Boolean(storedSession.current?.sessionId));
+  const [chatHistory, setChatHistory] = useState(
+    storedSession.current?.chatHistory?.length ? storedSession.current.chatHistory : starterMessages,
+  );
   const [input, setInput] = useState("");
-  const [sessionId, setSessionId] = useState(null);
+  const [sessionId, setSessionId] = useState(storedSession.current?.sessionId || null);
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState("");
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (!sessionId) return;
+    window.localStorage.setItem(
+      SESSION_STORAGE_KEY,
+      JSON.stringify({
+        sessionId,
+        chatHistory,
+        expiresAt: Date.now() + SESSION_TTL_MS,
+      }),
+    );
+  }, [chatHistory, sessionId]);
+
+  useEffect(() => {
+    if (!sessionId || !shouldRestoreSession.current || !isStarterOnly(chatHistory)) return;
+    shouldRestoreSession.current = false;
+
+    let cancelled = false;
+    fetch(`${API_BASE_URL}/session/${encodeURIComponent(sessionId)}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.chat_history?.length) return;
+        setChatHistory([starterMessages[0], ...data.chat_history]);
+        setStatus(
+          data.documents?.length
+            ? `${data.documents.length} uploaded file${data.documents.length === 1 ? "" : "s"} restored for retrieval.`
+            : "",
+        );
+      })
+      .catch((error) => {
+        logClientError("restoreSession failed", error, { sessionId });
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [chatHistory, sessionId]);
 
   const handleSend = async () => {
     const prompt = input.trim();
@@ -83,6 +162,7 @@ function App() {
       if (!res.ok) throw new Error("Chat request failed");
 
       const data = await res.json();
+      if (data.session_id) setSessionId(data.session_id);
       setChatHistory((history) => {
         const nextHistory = [...history];
         const usage = data.usage;
@@ -123,6 +203,11 @@ function App() {
         return nextHistory;
       });
     } catch (error) {
+      logClientError("chat request failed", error, {
+        sessionId,
+        promptChars: prompt.length,
+        aborted: error.name === "AbortError",
+      });
       setStatus(
         error.name === "AbortError"
           ? "The model is still busy after 2 minutes. Try a shorter question or restart the API with fewer output tokens."
@@ -164,6 +249,11 @@ function App() {
       setStatus(`${addedChunks} ${chunkLabel} indexed for retrieval.${skippedLabel}`);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
+      logClientError("upload request failed", error, {
+        sessionId,
+        fileCount: selectedFiles.length,
+        filenames: selectedFiles.map((file) => file.name),
+      });
       setStatus("Upload failed. Check that the API is running and accepts these files.");
     } finally {
       setUploading(false);
@@ -174,6 +264,21 @@ function App() {
     const selectedFiles = Array.from(event.target.files);
     setFiles(selectedFiles);
     uploadFiles(selectedFiles);
+  };
+
+  const handleClearChat = () => {
+    if (sending) return;
+    const confirmed = window.confirm("Clear this chat and start a new session?");
+    if (!confirmed) return;
+
+    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    shouldRestoreSession.current = false;
+    setChatHistory(starterMessages);
+    setSessionId(null);
+    setStatus("Chat cleared. Start a new conversation when you are ready.");
+    setInput("");
+    setFiles([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const openFilePicker = () => {
@@ -201,25 +306,45 @@ function App() {
               ref={fileInputRef}
               className="file-upload-input"
             />
-            <button
-              type="button"
-              className={`status-pill ${sessionId ? "active" : ""}`}
-              onClick={openFilePicker}
-              disabled={uploading}
-              aria-describedby="upload-files-tooltip"
-            >
-              <span className="status-pill-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" focusable="false">
-                  <path d="M12 3 7 8h3v6h4V8h3l-5-5Z" />
-                  <path d="M5 14v5h14v-5h-2v3H7v-3H5Z" />
-                </svg>
-              </span>
-              {uploading ? `Uploading ${files.length || ""}`.trim() : "Upload Additional Files"}
-              <span id="upload-files-tooltip" className="upload-tooltip" role="tooltip">
-                Upload your own notes or other materials to help AthenAI answer questions. Examples:
-                text, Word, PowerPoint, PDF.
-              </span>
-            </button>
+            <div className="header-actions">
+              <button
+                type="button"
+                className={`status-pill ${sessionId ? "active" : ""}`}
+                onClick={openFilePicker}
+                disabled={uploading}
+                aria-describedby="upload-files-tooltip"
+              >
+                <span className="status-pill-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M12 3 7 8h3v6h4V8h3l-5-5Z" />
+                    <path d="M5 14v5h14v-5h-2v3H7v-3H5Z" />
+                  </svg>
+                </span>
+                {uploading ? `Uploading ${files.length || ""}`.trim() : "Upload Additional Files"}
+                <span id="upload-files-tooltip" className="upload-tooltip" role="tooltip">
+                  Upload your own notes or other materials to help AthenAI answer questions. Examples:
+                  text, Word, PowerPoint, PDF.
+                </span>
+              </button>
+              <button
+                type="button"
+                className="clear-chat-button"
+                onClick={handleClearChat}
+                disabled={sending || isStarterOnly(chatHistory)}
+                aria-label="Clear chat"
+                aria-describedby="clear-chat-tooltip"
+              >
+                <span className="clear-chat-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M9 3h6l1 2h4v2H4V5h4l1-2Z" />
+                    <path d="M6 9h12l-1 12H7L6 9Zm4 2v8h2v-8h-2Zm4 0v8h2v-8h-2Z" />
+                  </svg>
+                </span>
+                <span id="clear-chat-tooltip" className="upload-tooltip clear-chat-tooltip" role="tooltip">
+                  Clear this chat and start a fresh session.
+                </span>
+              </button>
+            </div>
           </header>
 
           <div className="message-list" aria-live="polite">
@@ -256,8 +381,15 @@ function App() {
             ))}
             {sending && (
               <article className="message-row ai">
-                <ChatAvatar sender="ai" />
-                <div className="message-bubble typing">Thinking...</div>
+                <ChatAvatar sender="ai" thinking />
+                <div className="message-bubble typing" aria-label="Thinking">
+                  Thinking
+                  <span className="typing-dots" aria-hidden="true">
+                    <span>.</span>
+                    <span>.</span>
+                    <span>.</span>
+                  </span>
+                </div>
               </article>
             )}
           </div>

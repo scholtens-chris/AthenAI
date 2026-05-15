@@ -64,6 +64,8 @@ If the instance has no internet access, download or copy the model to disk and s
 - `/video-link/` — Link to video timestamps
 
 ## Notes
-- Uploaded content is stored in memory per session (for demo/dev; use Redis for production).
+- Uploaded content and chat history are stored in memory and mirrored to short-lived JSON session snapshots so they survive UI/API restarts.
+- Session snapshots default to `backend/.athenai_sessions` and expire after 12 hours. Tune with `ATHENAI_SESSION_TTL_HOURS`, change the folder with `ATHENAI_SESSION_STORE_DIR`, or set `ATHENAI_SESSION_PERSISTENCE=0` to keep sessions memory-only.
+- Logs default to stdout. Set `ATHENAI_LOG_LEVEL` (`INFO`, `DEBUG`, etc.) and `ATHENAI_LOG_FILE` to write rotating logs; `run_api.cmd` writes to `backend/athenai-api.log`.
 - CORS is enabled for frontend integration.
 - Option to use only uploaded content or include external internet sources is supported via API.

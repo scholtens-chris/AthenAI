@@ -16,4 +16,6 @@ set ATHENAI_LONG_TASK_MAX_NEW_TOKENS=2048
 set ATHENAI_TEMPERATURE=0.55
 set ATHENAI_TOP_P=0.9
 set ATHENAI_TOP_K=40
+set ATHENAI_LOG_LEVEL=INFO
+set ATHENAI_LOG_FILE=%~dp0athenai-api.log
 py -m uvicorn main:app --host 0.0.0.0 --port 8001

@@ -1,0 +1,923 @@
+2026-05-15 12:24:12,775 INFO [athenai.qwen] qwen_initialized model=Qwen/Qwen3-1.7B device=cuda:0 mock=False require_cuda=True max_new_tokens=1024 long_task_max_new_tokens=2048
+2026-05-15 12:24:12,792 INFO [athenai.api] startup_begin mock_llm=False model=Qwen/Qwen3-1.7B persistence=True session_store=C:\Users\brasi\AthenAI\backend\.athenai_sessions ttl_seconds=43200
+2026-05-15 12:24:12,793 INFO [athenai.api] shutdown_complete
+2026-05-15 12:25:06,703 INFO [athenai.qwen] qwen_initialized model=Qwen/Qwen3-1.7B device=cuda:0 mock=False require_cuda=True max_new_tokens=1024 long_task_max_new_tokens=2048
+2026-05-15 12:25:06,720 INFO [athenai.api] startup_begin mock_llm=False model=Qwen/Qwen3-1.7B persistence=True session_store=C:\Users\brasi\AthenAI\backend\.athenai_sessions ttl_seconds=43200
+2026-05-15 12:25:28,259 INFO [athenai.api] request_begin request_id=23bb3781-1453-4672-9e70-f70d55d29002 method=POST path=/chat/
+2026-05-15 12:25:28,260 INFO [athenai.api] chat_begin session_id=cb62be2c-93be-43dd-8112-abd201ebedcb prompt_chars=28 use_internet=False has_image=False
+2026-05-15 12:25:28,260 INFO [athenai.api] retrieve_full_context_empty session_id=cb62be2c-93be-43dd-8112-abd201ebedcb
+2026-05-15 12:25:28,260 INFO [athenai.api] chat_context session_id=cb62be2c-93be-43dd-8112-abd201ebedcb study_task=study_guide context_chunks=0 top_k=4
+2026-05-15 12:25:28,262 WARNING [athenai.api] chat_no_uploaded_context session_id=cb62be2c-93be-43dd-8112-abd201ebedcb study_task=study_guide
+2026-05-15 12:25:28,262 INFO [athenai.api] request_complete request_id=23bb3781-1453-4672-9e70-f70d55d29002 method=POST path=/chat/ status=200 elapsed_ms=3
+2026-05-15 12:26:56,190 INFO [athenai.qwen] qwen_initialized model=Qwen/Qwen3-1.7B device=cuda:0 mock=False require_cuda=True max_new_tokens=1024 long_task_max_new_tokens=2048
+2026-05-15 12:26:56,207 INFO [athenai.api] startup_begin mock_llm=False model=Qwen/Qwen3-1.7B persistence=True session_store=C:\Users\brasi\AthenAI\backend\.athenai_sessions ttl_seconds=43200
+2026-05-15 12:27:11,966 INFO [athenai.api] request_begin request_id=b231066f-399f-4821-9384-a51ba5855655 method=GET path=/docs
+2026-05-15 12:27:11,967 INFO [athenai.api] request_complete request_id=b231066f-399f-4821-9384-a51ba5855655 method=GET path=/docs status=200 elapsed_ms=0
+2026-05-15 12:27:21,384 INFO [athenai.api] request_begin request_id=55528abc-b4f0-4a42-80e4-de17a556723a method=POST path=/upload/
+2026-05-15 12:27:21,388 INFO [athenai.api] upload_begin session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 file_count=18
+2026-05-15 12:27:21,388 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Modifying Presentation Archive Email Notifications.dfxp bytes=2233
+2026-05-15 12:27:21,389 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Modifying Presentation Archive Email Notifications.dfxp chars=988 chunks_added=1 session_chunks=1
+2026-05-15 12:27:21,389 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Record Videos Directly from the Channel.dfxp bytes=6271
+2026-05-15 12:27:21,390 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Record Videos Directly from the Channel.dfxp chars=3151 chunks_added=4 session_chunks=5
+2026-05-15 12:27:21,391 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Custom Branding for Your Video.dfxp bytes=4072
+2026-05-15 12:27:21,392 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Custom Branding for Your Video.dfxp chars=2151 chunks_added=3 session_chunks=8
+2026-05-15 12:27:21,392 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Archive Your Videos Automatically.dfxp bytes=6905
+2026-05-15 12:27:21,393 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Archive Your Videos Automatically.dfxp chars=3421 chunks_added=4 session_chunks=12
+2026-05-15 12:27:21,394 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Customizable Intro & Outro Videos.dfxp bytes=5936
+2026-05-15 12:27:21,395 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Customizable Intro & Outro Videos.dfxp chars=2812 chunks_added=3 session_chunks=15
+2026-05-15 12:27:21,395 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Channel Content Management.dfxp bytes=8656
+2026-05-15 12:27:21,397 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Channel Content Management.dfxp chars=4340 chunks_added=5 session_chunks=20
+2026-05-15 12:27:21,397 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Optimize Storage.dfxp bytes=8502
+2026-05-15 12:27:21,398 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Optimize Storage.dfxp chars=4241 chunks_added=5 session_chunks=25
+2026-05-15 12:27:21,398 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=New Channels.dfxp bytes=4103
+2026-05-15 12:27:21,400 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=New Channels.dfxp chars=2078 chunks_added=2 session_chunks=27
+2026-05-15 12:27:21,400 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Easier Video Uploads.dfxp bytes=5960
+2026-05-15 12:27:21,401 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Easier Video Uploads.dfxp chars=2687 chunks_added=3 session_chunks=30
+2026-05-15 12:27:21,402 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Archive Presentations.dfxp bytes=7686
+2026-05-15 12:27:21,403 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Archive Presentations.dfxp chars=3893 chunks_added=4 session_chunks=34
+2026-05-15 12:27:21,403 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Mediasite AI Summarization.dfxp bytes=2310
+2026-05-15 12:27:21,405 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Mediasite AI Summarization.dfxp chars=1169 chunks_added=1 session_chunks=35
+2026-05-15 12:27:21,405 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Managing Presentation Revisions.dfxp bytes=19864
+2026-05-15 12:27:21,407 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Managing Presentation Revisions.dfxp chars=10455 chunks_added=11 session_chunks=46
+2026-05-15 12:27:21,408 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Streamline Your LMS Experience_ Easy Video Uploads and Embeds.dfxp bytes=5974
+2026-05-15 12:27:21,409 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Streamline Your LMS Experience_ Easy Video Uploads and Embeds.dfxp chars=2906 chunks_added=3 session_chunks=49
+2026-05-15 12:27:21,410 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Customize Your Presentation Playback Experience.dfxp bytes=7826
+2026-05-15 12:27:21,411 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Customize Your Presentation Playback Experience.dfxp chars=3750 chunks_added=4 session_chunks=53
+2026-05-15 12:27:21,411 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Set Up Multi-Language Captions for Live Videos.dfxp bytes=1281
+2026-05-15 12:27:21,413 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Set Up Multi-Language Captions for Live Videos.dfxp chars=553 chunks_added=1 session_chunks=54
+2026-05-15 12:27:21,413 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Generate Meaningful Titles with Enghouse AI.txt bytes=488
+2026-05-15 12:27:21,415 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Generate Meaningful Titles with Enghouse AI.txt chars=478 chunks_added=1 session_chunks=55
+2026-05-15 12:27:21,415 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=How to Remediate Accessibility Issues in Content.txt bytes=1228
+2026-05-15 12:27:21,416 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=How to Remediate Accessibility Issues in Content.txt chars=1200 chunks_added=1 session_chunks=56
+2026-05-15 12:27:21,416 INFO [athenai.api] upload_file_read session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Mediasite Accessibility Dashboard Walkthrough.txt bytes=3068
+2026-05-15 12:27:21,418 INFO [athenai.api] document_indexed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 filename=Mediasite Accessibility Dashboard Walkthrough.txt chars=3009 chunks_added=3 session_chunks=59
+2026-05-15 12:27:21,419 INFO [athenai.api] upload_complete session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 uploaded_files=18 indexed=18 skipped=0 added_chunks=59 total_chunks=59
+2026-05-15 12:27:21,420 INFO [athenai.api] request_complete request_id=55528abc-b4f0-4a42-80e4-de17a556723a method=POST path=/upload/ status=200 elapsed_ms=36
+2026-05-15 12:27:27,115 INFO [athenai.api] request_begin request_id=fb190e08-0ae8-4b70-a50c-126b179e62a2 method=POST path=/chat/
+2026-05-15 12:27:27,116 INFO [athenai.api] chat_begin session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 prompt_chars=21 use_internet=False has_image=False
+2026-05-15 12:27:27,117 INFO [athenai.api] retrieve_full_context_complete session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 source_chunks=59 returned=59 used_chars=63167 max_chars=0
+2026-05-15 12:27:27,117 INFO [athenai.api] chat_context session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 study_task=study_guide context_chunks=59 top_k=4
+2026-05-15 12:27:28,282 INFO [athenai.qwen] qwen_chat_begin study_task=study_guide prompt_chars=21 context_chunks=59 mock=False use_internet=False has_image=False
+2026-05-15 12:27:30,786 INFO [athenai.qwen] qwen_load_begin model=Qwen/Qwen3-1.7B device=cuda:0 local_files_only=False
+2026-05-15 12:27:31,032 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-15 12:27:31,033 WARNING [huggingface_hub.utils._http] Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+2026-05-15 12:27:31,045 INFO [httpx] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/config.json "HTTP/1.1 200 OK"
+2026-05-15 12:27:31,096 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-15 12:27:31,108 INFO [httpx] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-15 12:27:31,166 INFO [httpx] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-15 12:27:31,215 INFO [httpx] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-15 12:27:31,494 INFO [httpx] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-05-15 12:27:31,545 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-15 12:27:31,556 INFO [httpx] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/config.json "HTTP/1.1 200 OK"
+2026-05-15 12:27:42,019 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-15 12:27:42,033 INFO [httpx] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/generation_config.json "HTTP/1.1 200 OK"
+2026-05-15 12:27:42,082 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/custom_generate/generate.py "HTTP/1.1 404 Not Found"
+2026-05-15 12:27:42,681 INFO [athenai.qwen] qwen_load_complete model=Qwen/Qwen3-1.7B device=cuda:0 elapsed_ms=11894
+2026-05-15 12:27:42,726 INFO [athenai.qwen] qwen_generate_begin study_task=study_guide prompt_tokens=15153 max_new_tokens=2048 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 12:27:53,773 ERROR [athenai.qwen] qwen_generate_failed study_task=study_guide elapsed_ms=25491
+Traceback (most recent call last):
+  File "C:\Users\brasi\AthenAI\backend\qwen_utils.py", line 454, in chat_with_usage
+    outputs = self.model.generate(
+        **inputs,
+    ...<2 lines>...
+        pad_token_id=self.tokenizer.eos_token_id,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2560, in generate
+    result = decoding_method(
+        self,
+    ...<5 lines>...
+        **model_kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2753, in _sample
+    outputs = self._prefill(
+        input_ids,
+    ...<2 lines>...
+        is_first_iteration=not generation_config.is_assistant,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 3799, in _prefill
+    return self(**model_inputs, return_dict=True)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 900, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 492, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 976, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 424, in forward
+    hidden_states = decoder_layer(
+        hidden_states,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 318, in forward
+    hidden_states, _ = self.self_attn(
+                       ~~~~~~~~~~~~~~^
+        hidden_states=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 277, in forward
+    attn_output, attn_weights = attention_interface(
+                                ~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<7 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\integrations\sdpa_attention.py", line 92, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        query,
+    ...<6 lines>...
+        **sdpa_kwargs,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 13.69 GiB. GPU 0 has a total capacity of 11.99 GiB of which 0 bytes is free. Of the allocated memory 18.57 GiB is allocated by PyTorch, and 343.60 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+2026-05-15 12:27:53,793 ERROR [athenai.api] chat_llm_failed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 study_task=study_guide context_chunks=59
+Traceback (most recent call last):
+  File "C:\Users\brasi\AthenAI\backend\main.py", line 830, in chat
+    chat_result = qwen_llm.chat_with_usage(
+        prompt,
+    ...<3 lines>...
+        study_task=study_task,
+    )
+  File "C:\Users\brasi\AthenAI\backend\qwen_utils.py", line 454, in chat_with_usage
+    outputs = self.model.generate(
+        **inputs,
+    ...<2 lines>...
+        pad_token_id=self.tokenizer.eos_token_id,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2560, in generate
+    result = decoding_method(
+        self,
+    ...<5 lines>...
+        **model_kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2753, in _sample
+    outputs = self._prefill(
+        input_ids,
+    ...<2 lines>...
+        is_first_iteration=not generation_config.is_assistant,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 3799, in _prefill
+    return self(**model_inputs, return_dict=True)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 900, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 492, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 976, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 424, in forward
+    hidden_states = decoder_layer(
+        hidden_states,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 318, in forward
+    hidden_states, _ = self.self_attn(
+                       ~~~~~~~~~~~~~~^
+        hidden_states=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 277, in forward
+    attn_output, attn_weights = attention_interface(
+                                ~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<7 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\integrations\sdpa_attention.py", line 92, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        query,
+    ...<6 lines>...
+        **sdpa_kwargs,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 13.69 GiB. GPU 0 has a total capacity of 11.99 GiB of which 0 bytes is free. Of the allocated memory 18.57 GiB is allocated by PyTorch, and 343.60 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+2026-05-15 12:27:53,796 ERROR [athenai.api] request_failed request_id=fb190e08-0ae8-4b70-a50c-126b179e62a2 method=POST path=/chat/ elapsed_ms=26681
+Traceback (most recent call last):
+  File "C:\Users\brasi\AthenAI\backend\main.py", line 278, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AthenAI\backend\main.py", line 830, in chat
+    chat_result = qwen_llm.chat_with_usage(
+        prompt,
+    ...<3 lines>...
+        study_task=study_task,
+    )
+  File "C:\Users\brasi\AthenAI\backend\qwen_utils.py", line 454, in chat_with_usage
+    outputs = self.model.generate(
+        **inputs,
+    ...<2 lines>...
+        pad_token_id=self.tokenizer.eos_token_id,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2560, in generate
+    result = decoding_method(
+        self,
+    ...<5 lines>...
+        **model_kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2753, in _sample
+    outputs = self._prefill(
+        input_ids,
+    ...<2 lines>...
+        is_first_iteration=not generation_config.is_assistant,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 3799, in _prefill
+    return self(**model_inputs, return_dict=True)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 900, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 492, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 976, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 424, in forward
+    hidden_states = decoder_layer(
+        hidden_states,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 318, in forward
+    hidden_states, _ = self.self_attn(
+                       ~~~~~~~~~~~~~~^
+        hidden_states=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 277, in forward
+    attn_output, attn_weights = attention_interface(
+                                ~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<7 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\integrations\sdpa_attention.py", line 92, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        query,
+    ...<6 lines>...
+        **sdpa_kwargs,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 13.69 GiB. GPU 0 has a total capacity of 11.99 GiB of which 0 bytes is free. Of the allocated memory 18.57 GiB is allocated by PyTorch, and 343.60 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+2026-05-15 12:30:55,998 INFO [athenai.api] request_begin request_id=00d6bf09-99c6-4fcd-ae8d-26f95b5ef728 method=POST path=/chat/
+2026-05-15 12:30:55,999 INFO [athenai.api] chat_begin session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 prompt_chars=5 use_internet=False has_image=False
+2026-05-15 12:30:56,000 INFO [athenai.api] retrieve_full_context_complete session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 source_chunks=59 returned=59 used_chars=63167 max_chars=0
+2026-05-15 12:30:56,000 INFO [athenai.api] chat_context session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 study_task=answer context_chunks=59 top_k=4
+2026-05-15 12:30:56,003 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=5 context_chunks=59 mock=False use_internet=False has_image=False
+2026-05-15 12:30:56,031 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=14950 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 12:31:01,341 ERROR [athenai.qwen] qwen_generate_failed study_task=answer elapsed_ms=5338
+Traceback (most recent call last):
+  File "C:\Users\brasi\AthenAI\backend\qwen_utils.py", line 454, in chat_with_usage
+    outputs = self.model.generate(
+        **inputs,
+    ...<2 lines>...
+        pad_token_id=self.tokenizer.eos_token_id,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2560, in generate
+    result = decoding_method(
+        self,
+    ...<5 lines>...
+        **model_kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2753, in _sample
+    outputs = self._prefill(
+        input_ids,
+    ...<2 lines>...
+        is_first_iteration=not generation_config.is_assistant,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 3799, in _prefill
+    return self(**model_inputs, return_dict=True)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 900, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 492, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 976, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 424, in forward
+    hidden_states = decoder_layer(
+        hidden_states,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 318, in forward
+    hidden_states, _ = self.self_attn(
+                       ~~~~~~~~~~~~~~^
+        hidden_states=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 277, in forward
+    attn_output, attn_weights = attention_interface(
+                                ~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<7 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\integrations\sdpa_attention.py", line 92, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        query,
+    ...<6 lines>...
+        **sdpa_kwargs,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 13.32 GiB. GPU 0 has a total capacity of 11.99 GiB of which 0 bytes is free. Of the allocated memory 5.21 GiB is allocated by PyTorch, and 13.70 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+2026-05-15 12:31:01,344 ERROR [athenai.api] chat_llm_failed session_id=a4258b19-6aff-458a-8deb-a6d134afdcd6 study_task=answer context_chunks=59
+Traceback (most recent call last):
+  File "C:\Users\brasi\AthenAI\backend\main.py", line 830, in chat
+    chat_result = qwen_llm.chat_with_usage(
+        prompt,
+    ...<3 lines>...
+        study_task=study_task,
+    )
+  File "C:\Users\brasi\AthenAI\backend\qwen_utils.py", line 454, in chat_with_usage
+    outputs = self.model.generate(
+        **inputs,
+    ...<2 lines>...
+        pad_token_id=self.tokenizer.eos_token_id,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2560, in generate
+    result = decoding_method(
+        self,
+    ...<5 lines>...
+        **model_kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2753, in _sample
+    outputs = self._prefill(
+        input_ids,
+    ...<2 lines>...
+        is_first_iteration=not generation_config.is_assistant,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 3799, in _prefill
+    return self(**model_inputs, return_dict=True)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 900, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 492, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 976, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 424, in forward
+    hidden_states = decoder_layer(
+        hidden_states,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 318, in forward
+    hidden_states, _ = self.self_attn(
+                       ~~~~~~~~~~~~~~^
+        hidden_states=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 277, in forward
+    attn_output, attn_weights = attention_interface(
+                                ~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<7 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\integrations\sdpa_attention.py", line 92, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        query,
+    ...<6 lines>...
+        **sdpa_kwargs,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 13.32 GiB. GPU 0 has a total capacity of 11.99 GiB of which 0 bytes is free. Of the allocated memory 5.21 GiB is allocated by PyTorch, and 13.70 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+2026-05-15 12:31:01,346 ERROR [athenai.api] request_failed request_id=00d6bf09-99c6-4fcd-ae8d-26f95b5ef728 method=POST path=/chat/ elapsed_ms=5348
+Traceback (most recent call last):
+  File "C:\Users\brasi\AthenAI\backend\main.py", line 278, in log_requests
+    response = await call_next(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\base.py", line 168, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\base.py", line 144, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\middleware\exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\middleware\asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 680, in app
+    await route.handle(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 134, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\starlette\_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 120, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 674, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<3 lines>...
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\fastapi\routing.py", line 328, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AthenAI\backend\main.py", line 830, in chat
+    chat_result = qwen_llm.chat_with_usage(
+        prompt,
+    ...<3 lines>...
+        study_task=study_task,
+    )
+  File "C:\Users\brasi\AthenAI\backend\qwen_utils.py", line 454, in chat_with_usage
+    outputs = self.model.generate(
+        **inputs,
+    ...<2 lines>...
+        pad_token_id=self.tokenizer.eos_token_id,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\utils\_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2560, in generate
+    result = decoding_method(
+        self,
+    ...<5 lines>...
+        **model_kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 2753, in _sample
+    outputs = self._prefill(
+        input_ids,
+    ...<2 lines>...
+        is_first_iteration=not generation_config.is_assistant,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\generation\utils.py", line 3799, in _prefill
+    return self(**model_inputs, return_dict=True)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 900, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 492, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+                                       ~~~~~~~~~~^
+        input_ids=input_ids,
+        ^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\generic.py", line 976, in wrapper
+    output = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\utils\output_capturing.py", line 248, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 424, in forward
+    hidden_states = decoder_layer(
+        hidden_states,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\modeling_layers.py", line 93, in __call__
+    return super().__call__(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 318, in forward
+    hidden_states, _ = self.self_attn(
+                       ~~~~~~~~~~~~~~^
+        hidden_states=hidden_states,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1779, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\module.py", line 1790, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\models\qwen3\modeling_qwen3.py", line 277, in forward
+    attn_output, attn_weights = attention_interface(
+                                ~~~~~~~~~~~~~~~~~~~^
+        self,
+        ^^^^^
+    ...<7 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\transformers\integrations\sdpa_attention.py", line 92, in sdpa_attention_forward
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+        query,
+    ...<6 lines>...
+        **sdpa_kwargs,
+    )
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 13.32 GiB. GPU 0 has a total capacity of 11.99 GiB of which 0 bytes is free. Of the allocated memory 5.21 GiB is allocated by PyTorch, and 13.70 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+2026-05-15 12:32:01,273 INFO [athenai.qwen] qwen_initialized model=Qwen/Qwen3-1.7B device=cuda:0 mock=False require_cuda=True max_new_tokens=1024 long_task_max_new_tokens=2048
+2026-05-15 12:32:01,293 INFO [athenai.api] startup_begin mock_llm=False model=Qwen/Qwen3-1.7B persistence=True session_store=C:\Users\brasi\AthenAI\backend\.athenai_sessions ttl_seconds=43200
+2026-05-15 12:32:18,010 INFO [athenai.api] request_begin request_id=d22f2fae-2a57-4ee6-9c71-688f0c236284 method=GET path=/docs
+2026-05-15 12:32:18,010 INFO [athenai.api] request_complete request_id=d22f2fae-2a57-4ee6-9c71-688f0c236284 method=GET path=/docs status=200 elapsed_ms=0
+2026-05-15 12:32:48,300 INFO [athenai.api] request_begin request_id=e136acd5-9371-43ef-9c1a-dec9f1e76f92 method=POST path=/upload/
+2026-05-15 12:32:48,302 INFO [athenai.api] upload_begin session_id=99a58902-f90e-41a4-b0d6-5114975075d3 file_count=8
+2026-05-15 12:32:48,302 INFO [athenai.api] upload_file_read session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Modifying Presentation Archive Email Notifications.dfxp bytes=2233
+2026-05-15 12:32:48,304 INFO [athenai.api] document_indexed session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Modifying Presentation Archive Email Notifications.dfxp chars=988 chunks_added=1 session_chunks=1
+2026-05-15 12:32:48,304 INFO [athenai.api] upload_file_read session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Record Videos Directly from the Channel.dfxp bytes=6271
+2026-05-15 12:32:48,305 INFO [athenai.api] document_indexed session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Record Videos Directly from the Channel.dfxp chars=3151 chunks_added=4 session_chunks=5
+2026-05-15 12:32:48,305 INFO [athenai.api] upload_file_read session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Custom Branding for Your Video.dfxp bytes=4072
+2026-05-15 12:32:48,307 INFO [athenai.api] document_indexed session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Custom Branding for Your Video.dfxp chars=2151 chunks_added=3 session_chunks=8
+2026-05-15 12:32:48,307 INFO [athenai.api] upload_file_read session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Archive Your Videos Automatically.dfxp bytes=6905
+2026-05-15 12:32:48,308 INFO [athenai.api] document_indexed session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Archive Your Videos Automatically.dfxp chars=3421 chunks_added=4 session_chunks=12
+2026-05-15 12:32:48,308 INFO [athenai.api] upload_file_read session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Customizable Intro & Outro Videos.dfxp bytes=5936
+2026-05-15 12:32:48,309 INFO [athenai.api] document_indexed session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Customizable Intro & Outro Videos.dfxp chars=2812 chunks_added=3 session_chunks=15
+2026-05-15 12:32:48,310 INFO [athenai.api] upload_file_read session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Channel Content Management.dfxp bytes=8656
+2026-05-15 12:32:48,311 INFO [athenai.api] document_indexed session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Channel Content Management.dfxp chars=4340 chunks_added=5 session_chunks=20
+2026-05-15 12:32:48,311 INFO [athenai.api] upload_file_read session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Optimize Storage.dfxp bytes=8502
+2026-05-15 12:32:48,314 INFO [athenai.api] document_indexed session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=Optimize Storage.dfxp chars=4241 chunks_added=5 session_chunks=25
+2026-05-15 12:32:48,314 INFO [athenai.api] upload_file_read session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=New Channels.dfxp bytes=4103
+2026-05-15 12:32:48,315 INFO [athenai.api] document_indexed session_id=99a58902-f90e-41a4-b0d6-5114975075d3 filename=New Channels.dfxp chars=2078 chunks_added=2 session_chunks=27
+2026-05-15 12:32:48,317 INFO [athenai.api] upload_complete session_id=99a58902-f90e-41a4-b0d6-5114975075d3 uploaded_files=8 indexed=8 skipped=0 added_chunks=27 total_chunks=27
+2026-05-15 12:32:48,317 INFO [athenai.api] request_complete request_id=e136acd5-9371-43ef-9c1a-dec9f1e76f92 method=POST path=/upload/ status=200 elapsed_ms=17
+2026-05-15 12:32:53,438 INFO [athenai.api] request_begin request_id=abe9977b-807f-44f1-a113-a1a5b791c8e5 method=POST path=/chat/
+2026-05-15 12:32:53,440 INFO [athenai.api] chat_begin session_id=99a58902-f90e-41a4-b0d6-5114975075d3 prompt_chars=21 use_internet=False has_image=False
+2026-05-15 12:32:53,440 INFO [athenai.api] retrieve_full_context_complete session_id=99a58902-f90e-41a4-b0d6-5114975075d3 source_chunks=27 returned=27 used_chars=27708 max_chars=0
+2026-05-15 12:32:53,441 INFO [athenai.api] chat_context session_id=99a58902-f90e-41a4-b0d6-5114975075d3 study_task=study_guide context_chunks=27 top_k=4
+2026-05-15 12:32:54,688 INFO [athenai.qwen] qwen_chat_begin study_task=study_guide prompt_chars=21 context_chunks=27 mock=False use_internet=False has_image=False
+2026-05-15 12:32:56,470 INFO [athenai.qwen] qwen_load_begin model=Qwen/Qwen3-1.7B device=cuda:0 local_files_only=False
+2026-05-15 12:32:56,688 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-15 12:32:56,700 INFO [httpx] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/config.json "HTTP/1.1 200 OK"
+2026-05-15 12:32:56,748 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-15 12:32:56,759 INFO [httpx] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/tokenizer_config.json "HTTP/1.1 200 OK"
+2026-05-15 12:32:56,805 INFO [httpx] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+2026-05-15 12:32:56,892 INFO [httpx] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+2026-05-15 12:32:57,179 INFO [httpx] HTTP Request: GET https://huggingface.co/api/models/Qwen/Qwen3-1.7B "HTTP/1.1 200 OK"
+2026-05-15 12:32:57,227 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-15 12:32:57,238 INFO [httpx] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/config.json "HTTP/1.1 200 OK"
+2026-05-15 12:33:06,365 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/generation_config.json "HTTP/1.1 307 Temporary Redirect"
+2026-05-15 12:33:06,377 INFO [httpx] HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/Qwen/Qwen3-1.7B/70d244cc86ccca08cf5af4e1e306ecf908b1ad5e/generation_config.json "HTTP/1.1 200 OK"
+2026-05-15 12:33:06,426 INFO [httpx] HTTP Request: HEAD https://huggingface.co/Qwen/Qwen3-1.7B/resolve/main/custom_generate/generate.py "HTTP/1.1 404 Not Found"
+2026-05-15 12:33:07,008 INFO [athenai.qwen] qwen_load_complete model=Qwen/Qwen3-1.7B device=cuda:0 elapsed_ms=10538
+2026-05-15 12:33:07,036 INFO [athenai.qwen] qwen_generate_begin study_task=study_guide prompt_tokens=7047 max_new_tokens=2048 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 13:42:45,059 INFO [athenai.qwen] qwen_chat_complete study_task=study_guide mock=False elapsed_ms=4190348 prompt_tokens=7047 completion_tokens=1904 total_tokens=8951 hit_token_limit=False retried_for_quality=False response_chars=8623
+2026-05-15 13:42:45,068 INFO [athenai.api] chat_complete session_id=99a58902-f90e-41a4-b0d6-5114975075d3 study_task=study_guide response_chars=8623 prompt_tokens=7047 completion_tokens=1904 total_tokens=8951 hit_token_limit=False retried_for_quality=False
+2026-05-15 13:42:45,075 INFO [athenai.api] request_complete request_id=abe9977b-807f-44f1-a113-a1a5b791c8e5 method=POST path=/chat/ status=200 elapsed_ms=4191615
+2026-05-15 13:42:45,081 INFO [athenai.api] request_begin request_id=16e1f465-a4f8-45bc-b3d1-9f124cdcb7d2 method=POST path=/upload/
+2026-05-15 13:42:45,085 INFO [athenai.api] request_begin request_id=1bf8c374-9ad5-46c3-8634-5d7056da5e57 method=POST path=/upload/
+2026-05-15 13:42:45,087 INFO [athenai.api] request_begin request_id=a3db625c-9299-4986-bbf7-7b4904af1ca6 method=POST path=/upload/
+2026-05-15 13:42:45,089 INFO [athenai.api] upload_begin session_id=d5913893-5d8b-4d2d-aba1-9e9e0e0a132f file_count=1
+2026-05-15 13:42:45,090 INFO [athenai.api] upload_file_read session_id=d5913893-5d8b-4d2d-aba1-9e9e0e0a132f filename=Custom Branding for Your Video.dfxp bytes=4072
+2026-05-15 13:42:45,092 INFO [athenai.api] document_indexed session_id=d5913893-5d8b-4d2d-aba1-9e9e0e0a132f filename=Custom Branding for Your Video.dfxp chars=2151 chunks_added=3 session_chunks=3
+2026-05-15 13:42:45,093 INFO [athenai.api] upload_complete session_id=d5913893-5d8b-4d2d-aba1-9e9e0e0a132f uploaded_files=1 indexed=1 skipped=0 added_chunks=3 total_chunks=3
+2026-05-15 13:42:45,094 INFO [athenai.api] request_complete request_id=16e1f465-a4f8-45bc-b3d1-9f124cdcb7d2 method=POST path=/upload/ status=200 elapsed_ms=13
+2026-05-15 13:42:45,095 INFO [athenai.api] upload_begin session_id=f978eed4-9b12-4c19-b0f0-ad47f0a964b9 file_count=1
+2026-05-15 13:42:45,095 INFO [athenai.api] upload_file_read session_id=f978eed4-9b12-4c19-b0f0-ad47f0a964b9 filename=Record Videos Directly from the Channel.dfxp bytes=6271
+2026-05-15 13:42:45,097 INFO [athenai.api] document_indexed session_id=f978eed4-9b12-4c19-b0f0-ad47f0a964b9 filename=Record Videos Directly from the Channel.dfxp chars=3151 chunks_added=4 session_chunks=4
+2026-05-15 13:42:45,098 INFO [athenai.api] upload_complete session_id=f978eed4-9b12-4c19-b0f0-ad47f0a964b9 uploaded_files=1 indexed=1 skipped=0 added_chunks=4 total_chunks=4
+2026-05-15 13:42:45,098 INFO [athenai.api] request_complete request_id=1bf8c374-9ad5-46c3-8634-5d7056da5e57 method=POST path=/upload/ status=200 elapsed_ms=13
+2026-05-15 13:42:45,099 INFO [athenai.api] upload_begin session_id=86353b75-43fb-40b6-9a67-a799aba13a58 file_count=1
+2026-05-15 13:42:45,099 INFO [athenai.api] upload_file_read session_id=86353b75-43fb-40b6-9a67-a799aba13a58 filename=Record Videos Directly from the Channel.dfxp bytes=6271
+2026-05-15 13:42:45,100 INFO [athenai.api] document_indexed session_id=86353b75-43fb-40b6-9a67-a799aba13a58 filename=Record Videos Directly from the Channel.dfxp chars=3151 chunks_added=4 session_chunks=4
+2026-05-15 13:42:45,101 INFO [athenai.api] upload_complete session_id=86353b75-43fb-40b6-9a67-a799aba13a58 uploaded_files=1 indexed=1 skipped=0 added_chunks=4 total_chunks=4
+2026-05-15 13:42:45,102 INFO [athenai.api] request_complete request_id=a3db625c-9299-4986-bbf7-7b4904af1ca6 method=POST path=/upload/ status=200 elapsed_ms=14
+2026-05-15 13:42:48,322 INFO [athenai.api] request_begin request_id=0dd2e88e-902c-4556-9e53-15f335c758ef method=POST path=/upload/
+2026-05-15 13:42:48,323 INFO [athenai.api] upload_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a file_count=1
+2026-05-15 13:42:48,324 INFO [athenai.api] upload_file_read session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a filename=Optimize Storage.dfxp bytes=8502
+2026-05-15 13:42:48,326 INFO [athenai.api] document_indexed session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a filename=Optimize Storage.dfxp chars=4241 chunks_added=5 session_chunks=5
+2026-05-15 13:42:48,327 INFO [athenai.api] upload_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a uploaded_files=1 indexed=1 skipped=0 added_chunks=5 total_chunks=5
+2026-05-15 13:42:48,327 INFO [athenai.api] request_complete request_id=0dd2e88e-902c-4556-9e53-15f335c758ef method=POST path=/upload/ status=200 elapsed_ms=4
+2026-05-15 13:42:51,205 INFO [athenai.api] request_begin request_id=c7ce7e4f-45d7-4cb2-baa4-5607a30e9332 method=POST path=/chat/
+2026-05-15 13:42:51,206 INFO [athenai.api] chat_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a prompt_chars=4 use_internet=False has_image=False
+2026-05-15 13:42:51,207 INFO [athenai.api] retrieve_full_context_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a source_chunks=5 returned=5 used_chars=5212 max_chars=0
+2026-05-15 13:42:51,207 INFO [athenai.api] chat_context session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer context_chunks=5 top_k=4
+2026-05-15 13:42:51,210 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=4 context_chunks=5 mock=False use_internet=False has_image=False
+2026-05-15 13:42:51,239 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=1636 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 13:43:08,910 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=17700 prompt_tokens=1636 completion_tokens=420 total_tokens=2056 hit_token_limit=False retried_for_quality=False response_chars=2142
+2026-05-15 13:43:08,911 INFO [athenai.api] chat_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer response_chars=2142 prompt_tokens=1636 completion_tokens=420 total_tokens=2056 hit_token_limit=False retried_for_quality=False
+2026-05-15 13:43:08,912 INFO [athenai.api] request_complete request_id=c7ce7e4f-45d7-4cb2-baa4-5607a30e9332 method=POST path=/chat/ status=200 elapsed_ms=17706
+2026-05-15 13:49:12,940 INFO [athenai.api] request_begin request_id=71003f45-60cc-422f-9ff9-a988c2f2e783 method=POST path=/upload/
+2026-05-15 13:49:12,942 INFO [athenai.api] upload_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a file_count=1
+2026-05-15 13:49:12,942 INFO [athenai.api] upload_file_read session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a filename=Archive Your Videos Automatically.dfxp bytes=6905
+2026-05-15 13:49:12,944 INFO [athenai.api] document_indexed session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a filename=Archive Your Videos Automatically.dfxp chars=3421 chunks_added=4 session_chunks=9
+2026-05-15 13:49:12,946 INFO [athenai.api] upload_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a uploaded_files=1 indexed=1 skipped=0 added_chunks=4 total_chunks=9
+2026-05-15 13:49:12,946 INFO [athenai.api] request_complete request_id=71003f45-60cc-422f-9ff9-a988c2f2e783 method=POST path=/upload/ status=200 elapsed_ms=6
+2026-05-15 13:49:18,365 INFO [athenai.api] request_begin request_id=dc323d4b-fa9a-431b-87aa-76eafa4589f9 method=POST path=/chat/
+2026-05-15 13:49:18,366 INFO [athenai.api] chat_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a prompt_chars=4 use_internet=False has_image=False
+2026-05-15 13:49:18,366 INFO [athenai.api] retrieve_full_context_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a source_chunks=9 returned=9 used_chars=9308 max_chars=0
+2026-05-15 13:49:18,366 INFO [athenai.api] chat_context session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer context_chunks=9 top_k=4
+2026-05-15 13:49:18,368 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=4 context_chunks=9 mock=False use_internet=False has_image=False
+2026-05-15 13:49:18,380 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=2592 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 13:49:50,537 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=32168 prompt_tokens=2592 completion_tokens=447 total_tokens=3039 hit_token_limit=False retried_for_quality=False response_chars=2328
+2026-05-15 13:49:50,538 INFO [athenai.api] chat_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer response_chars=2328 prompt_tokens=2592 completion_tokens=447 total_tokens=3039 hit_token_limit=False retried_for_quality=False
+2026-05-15 13:49:50,539 INFO [athenai.api] request_complete request_id=dc323d4b-fa9a-431b-87aa-76eafa4589f9 method=POST path=/chat/ status=200 elapsed_ms=32173
+2026-05-15 13:51:32,519 INFO [athenai.api] request_begin request_id=6a372c3c-5551-485a-9cab-675b87964bb2 method=POST path=/chat/
+2026-05-15 13:51:32,520 INFO [athenai.api] chat_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a prompt_chars=5 use_internet=False has_image=False
+2026-05-15 13:51:32,520 INFO [athenai.api] retrieve_full_context_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a source_chunks=9 returned=9 used_chars=9308 max_chars=0
+2026-05-15 13:51:32,520 INFO [athenai.api] chat_context session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer context_chunks=9 top_k=4
+2026-05-15 13:51:32,522 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=5 context_chunks=9 mock=False use_internet=False has_image=False
+2026-05-15 13:51:32,529 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=2592 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 13:52:11,471 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=38949 prompt_tokens=2592 completion_tokens=372 total_tokens=2964 hit_token_limit=False retried_for_quality=False response_chars=1864
+2026-05-15 13:52:11,473 INFO [athenai.api] chat_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer response_chars=1864 prompt_tokens=2592 completion_tokens=372 total_tokens=2964 hit_token_limit=False retried_for_quality=False
+2026-05-15 13:52:11,474 INFO [athenai.api] request_complete request_id=6a372c3c-5551-485a-9cab-675b87964bb2 method=POST path=/chat/ status=200 elapsed_ms=38954
+2026-05-15 13:52:50,854 INFO [athenai.api] request_begin request_id=92790994-4726-48a9-b8da-f76d2d1b4fde method=POST path=/chat/
+2026-05-15 13:52:50,855 INFO [athenai.api] chat_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a prompt_chars=28 use_internet=False has_image=False
+2026-05-15 13:52:50,855 INFO [athenai.api] retrieve_full_context_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a source_chunks=9 returned=9 used_chars=9308 max_chars=0
+2026-05-15 13:52:50,855 INFO [athenai.api] chat_context session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer context_chunks=9 top_k=4
+2026-05-15 13:52:50,857 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=28 context_chunks=9 mock=False use_internet=False has_image=False
+2026-05-15 13:52:50,864 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=2598 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 13:53:22,163 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=31306 prompt_tokens=2598 completion_tokens=72 total_tokens=2670 hit_token_limit=False retried_for_quality=False response_chars=375
+2026-05-15 13:53:22,165 INFO [athenai.api] chat_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer response_chars=375 prompt_tokens=2598 completion_tokens=72 total_tokens=2670 hit_token_limit=False retried_for_quality=False
+2026-05-15 13:53:22,165 INFO [athenai.api] request_complete request_id=92790994-4726-48a9-b8da-f76d2d1b4fde method=POST path=/chat/ status=200 elapsed_ms=31310
+2026-05-15 13:53:24,321 INFO [athenai.api] request_begin request_id=c8b386f2-1bcf-46e6-b6c2-9116cf991c2c method=POST path=/chat/
+2026-05-15 13:53:24,322 INFO [athenai.api] chat_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a prompt_chars=28 use_internet=False has_image=False
+2026-05-15 13:53:24,322 INFO [athenai.api] retrieve_full_context_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a source_chunks=9 returned=9 used_chars=9308 max_chars=0
+2026-05-15 13:53:24,322 INFO [athenai.api] chat_context session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer context_chunks=9 top_k=4
+2026-05-15 13:53:24,324 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=28 context_chunks=9 mock=False use_internet=False has_image=False
+2026-05-15 13:53:24,328 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=2598 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 13:53:55,413 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=31088 prompt_tokens=2598 completion_tokens=96 total_tokens=2694 hit_token_limit=False retried_for_quality=False response_chars=501
+2026-05-15 13:53:55,414 INFO [athenai.api] chat_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer response_chars=501 prompt_tokens=2598 completion_tokens=96 total_tokens=2694 hit_token_limit=False retried_for_quality=False
+2026-05-15 13:53:55,414 INFO [athenai.api] request_complete request_id=c8b386f2-1bcf-46e6-b6c2-9116cf991c2c method=POST path=/chat/ status=200 elapsed_ms=31093
+2026-05-15 13:55:43,566 INFO [athenai.api] request_begin request_id=3e86c5c2-9617-4347-af97-5b2761200f15 method=POST path=/chat/
+2026-05-15 13:55:43,567 INFO [athenai.api] chat_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a prompt_chars=19 use_internet=False has_image=False
+2026-05-15 13:55:43,567 INFO [athenai.api] retrieve_full_context_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a source_chunks=9 returned=9 used_chars=9308 max_chars=0
+2026-05-15 13:55:43,567 INFO [athenai.api] chat_context session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer context_chunks=9 top_k=4
+2026-05-15 13:55:43,568 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=19 context_chunks=9 mock=False use_internet=False has_image=False
+2026-05-15 13:55:43,575 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=2597 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 13:56:15,172 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=31603 prompt_tokens=2597 completion_tokens=112 total_tokens=2709 hit_token_limit=False retried_for_quality=False response_chars=568
+2026-05-15 13:56:15,174 INFO [athenai.api] chat_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=answer response_chars=568 prompt_tokens=2597 completion_tokens=112 total_tokens=2709 hit_token_limit=False retried_for_quality=False
+2026-05-15 13:56:15,174 INFO [athenai.api] request_complete request_id=3e86c5c2-9617-4347-af97-5b2761200f15 method=POST path=/chat/ status=200 elapsed_ms=31608
+2026-05-15 13:58:57,983 INFO [athenai.api] request_begin request_id=4c4e6fee-ce58-4033-ad29-376ec36fdd64 method=POST path=/chat/
+2026-05-15 13:58:57,984 INFO [athenai.api] chat_begin session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a prompt_chars=22 use_internet=False has_image=False
+2026-05-15 13:58:57,984 INFO [athenai.api] retrieve_full_context_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a source_chunks=9 returned=9 used_chars=9308 max_chars=0
+2026-05-15 13:58:57,984 INFO [athenai.api] chat_context session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=study_guide context_chunks=9 top_k=4
+2026-05-15 13:58:57,986 INFO [athenai.qwen] qwen_chat_begin study_task=study_guide prompt_chars=22 context_chunks=9 mock=False use_internet=False has_image=False
+2026-05-15 13:58:57,994 INFO [athenai.qwen] qwen_generate_begin study_task=study_guide prompt_tokens=2794 max_new_tokens=2048 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 14:00:18,138 INFO [athenai.qwen] qwen_chat_complete study_task=study_guide mock=False elapsed_ms=80151 prompt_tokens=2794 completion_tokens=1210 total_tokens=4004 hit_token_limit=False retried_for_quality=False response_chars=5599
+2026-05-15 14:00:18,140 INFO [athenai.api] chat_complete session_id=c955e2e7-e348-4505-ae6d-8fd847b6842a study_task=study_guide response_chars=5599 prompt_tokens=2794 completion_tokens=1210 total_tokens=4004 hit_token_limit=False retried_for_quality=False
+2026-05-15 14:00:18,141 INFO [athenai.api] request_complete request_id=4c4e6fee-ce58-4033-ad29-376ec36fdd64 method=POST path=/chat/ status=200 elapsed_ms=80156
+2026-05-15 14:02:06,642 INFO [athenai.api] request_begin request_id=148e1d93-031f-402a-99ec-67b56f94c46f method=POST path=/upload/
+2026-05-15 14:02:06,644 INFO [athenai.api] upload_begin session_id=091abd62-75a5-4424-8936-4c097579a4b6 file_count=5
+2026-05-15 14:02:06,644 INFO [athenai.api] upload_file_read session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=Customizable Intro & Outro Videos.dfxp bytes=5936
+2026-05-15 14:02:06,646 INFO [athenai.api] document_indexed session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=Customizable Intro & Outro Videos.dfxp chars=2812 chunks_added=3 session_chunks=3
+2026-05-15 14:02:06,647 INFO [athenai.api] upload_file_read session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=Channel Content Management.dfxp bytes=8656
+2026-05-15 14:02:06,648 INFO [athenai.api] document_indexed session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=Channel Content Management.dfxp chars=4340 chunks_added=5 session_chunks=8
+2026-05-15 14:02:06,648 INFO [athenai.api] upload_file_read session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=Optimize Storage.dfxp bytes=8502
+2026-05-15 14:02:06,650 INFO [athenai.api] document_indexed session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=Optimize Storage.dfxp chars=4241 chunks_added=5 session_chunks=13
+2026-05-15 14:02:06,650 INFO [athenai.api] upload_file_read session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=New Channels.dfxp bytes=4103
+2026-05-15 14:02:06,652 INFO [athenai.api] document_indexed session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=New Channels.dfxp chars=2078 chunks_added=2 session_chunks=15
+2026-05-15 14:02:06,652 INFO [athenai.api] upload_file_read session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=Easier Video Uploads.dfxp bytes=5960
+2026-05-15 14:02:06,654 INFO [athenai.api] document_indexed session_id=091abd62-75a5-4424-8936-4c097579a4b6 filename=Easier Video Uploads.dfxp chars=2687 chunks_added=3 session_chunks=18
+2026-05-15 14:02:06,655 INFO [athenai.api] upload_complete session_id=091abd62-75a5-4424-8936-4c097579a4b6 uploaded_files=5 indexed=5 skipped=0 added_chunks=18 total_chunks=18
+2026-05-15 14:02:06,655 INFO [athenai.api] request_complete request_id=148e1d93-031f-402a-99ec-67b56f94c46f method=POST path=/upload/ status=200 elapsed_ms=13
+2026-05-15 14:02:18,922 INFO [athenai.api] request_begin request_id=dd6ffa0b-d629-4347-9368-89e714f7e1b6 method=POST path=/chat/
+2026-05-15 14:02:18,923 INFO [athenai.api] chat_begin session_id=091abd62-75a5-4424-8936-4c097579a4b6 prompt_chars=48 use_internet=False has_image=False
+2026-05-15 14:02:18,923 INFO [athenai.api] retrieve_full_context_complete session_id=091abd62-75a5-4424-8936-4c097579a4b6 source_chunks=18 returned=18 used_chars=19320 max_chars=0
+2026-05-15 14:02:18,923 INFO [athenai.api] chat_context session_id=091abd62-75a5-4424-8936-4c097579a4b6 study_task=answer context_chunks=18 top_k=4
+2026-05-15 14:02:18,925 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=48 context_chunks=18 mock=False use_internet=False has_image=False
+2026-05-15 14:02:18,942 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=4915 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-15 14:04:56,385 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=157459 prompt_tokens=4915 completion_tokens=268 total_tokens=5183 hit_token_limit=False retried_for_quality=False response_chars=1539
+2026-05-15 14:04:56,387 INFO [athenai.api] chat_complete session_id=091abd62-75a5-4424-8936-4c097579a4b6 study_task=answer response_chars=1539 prompt_tokens=4915 completion_tokens=268 total_tokens=5183 hit_token_limit=False retried_for_quality=False
+2026-05-15 14:04:56,388 INFO [athenai.api] request_complete request_id=dd6ffa0b-d629-4347-9368-89e714f7e1b6 method=POST path=/chat/ status=200 elapsed_ms=157464

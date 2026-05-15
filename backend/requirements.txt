@@ -7,3 +7,5 @@ accelerate
 pypdf
 python-docx
 python-pptx
+pytest
+pytest-cov
