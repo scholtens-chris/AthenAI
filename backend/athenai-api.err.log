@@ -169,3 +169,71 @@ C:\Users\brasi\AppData\Roaming\Python\Python314\site-packages\torch\nn\modules\m
 2026-05-15 14:04:56,385 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=157459 prompt_tokens=4915 completion_tokens=268 total_tokens=5183 hit_token_limit=False retried_for_quality=False response_chars=1539
 2026-05-15 14:04:56,387 INFO [athenai.api] chat_complete session_id=091abd62-75a5-4424-8936-4c097579a4b6 study_task=answer response_chars=1539 prompt_tokens=4915 completion_tokens=268 total_tokens=5183 hit_token_limit=False retried_for_quality=False
 2026-05-15 14:04:56,388 INFO [athenai.api] request_complete request_id=dd6ffa0b-d629-4347-9368-89e714f7e1b6 method=POST path=/chat/ status=200 elapsed_ms=157464
+2026-05-18 10:38:09,042 INFO [athenai.api] request_begin request_id=6ee16d9f-bd3e-44cf-ac4f-1ad39e27551f method=POST path=/upload/
+2026-05-18 10:38:09,055 INFO [athenai.api] upload_begin session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac file_count=11
+2026-05-18 10:38:09,055 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Modifying Presentation Archive Email Notifications.dfxp bytes=2233
+2026-05-18 10:38:09,060 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Modifying Presentation Archive Email Notifications.dfxp chars=988 chunks_added=1 session_chunks=1
+2026-05-18 10:38:09,061 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Record Videos Directly from the Channel.dfxp bytes=6271
+2026-05-18 10:38:09,064 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Record Videos Directly from the Channel.dfxp chars=3151 chunks_added=4 session_chunks=5
+2026-05-18 10:38:09,064 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Custom Branding for Your Video.dfxp bytes=4072
+2026-05-18 10:38:09,066 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Custom Branding for Your Video.dfxp chars=2151 chunks_added=3 session_chunks=8
+2026-05-18 10:38:09,066 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Archive Your Videos Automatically.dfxp bytes=6905
+2026-05-18 10:38:09,069 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Archive Your Videos Automatically.dfxp chars=3421 chunks_added=4 session_chunks=12
+2026-05-18 10:38:09,070 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Customizable Intro & Outro Videos.dfxp bytes=5936
+2026-05-18 10:38:09,073 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Customizable Intro & Outro Videos.dfxp chars=2812 chunks_added=3 session_chunks=15
+2026-05-18 10:38:09,073 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Channel Content Management.dfxp bytes=8656
+2026-05-18 10:38:09,076 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Channel Content Management.dfxp chars=4340 chunks_added=5 session_chunks=20
+2026-05-18 10:38:09,076 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Optimize Storage.dfxp bytes=8502
+2026-05-18 10:38:09,079 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Optimize Storage.dfxp chars=4241 chunks_added=5 session_chunks=25
+2026-05-18 10:38:09,079 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=New Channels.dfxp bytes=4103
+2026-05-18 10:38:09,082 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=New Channels.dfxp chars=2078 chunks_added=2 session_chunks=27
+2026-05-18 10:38:09,082 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Easier Video Uploads.dfxp bytes=5960
+2026-05-18 10:38:09,084 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Easier Video Uploads.dfxp chars=2687 chunks_added=3 session_chunks=30
+2026-05-18 10:38:09,084 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Archive Presentations.dfxp bytes=7686
+2026-05-18 10:38:09,088 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Archive Presentations.dfxp chars=3893 chunks_added=4 session_chunks=34
+2026-05-18 10:38:09,088 INFO [athenai.api] upload_file_read session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Mediasite AI Summarization.dfxp bytes=2310
+2026-05-18 10:38:09,089 INFO [athenai.api] document_indexed session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac filename=Mediasite AI Summarization.dfxp chars=1169 chunks_added=1 session_chunks=35
+2026-05-18 10:38:09,091 INFO [athenai.api] upload_complete session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac uploaded_files=11 indexed=11 skipped=0 added_chunks=35 total_chunks=35
+2026-05-18 10:38:09,092 INFO [athenai.api] request_complete request_id=6ee16d9f-bd3e-44cf-ac4f-1ad39e27551f method=POST path=/upload/ status=200 elapsed_ms=50
+2026-05-18 10:38:21,088 INFO [athenai.api] request_begin request_id=29d3d86f-9184-4619-a70c-8ed750a014b7 method=POST path=/chat/
+2026-05-18 10:38:21,089 INFO [athenai.api] chat_begin session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac prompt_chars=37 use_internet=False has_image=False
+2026-05-18 10:38:21,090 INFO [athenai.api] retrieve_full_context_complete session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac source_chunks=35 returned=35 used_chars=36638 max_chars=0
+2026-05-18 10:38:21,090 INFO [athenai.api] chat_context session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac study_task=answer context_chunks=35 top_k=4
+2026-05-18 10:38:21,093 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=37 context_chunks=35 mock=False use_internet=False has_image=False
+2026-05-18 10:38:25,364 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=8890 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-18 11:00:19,837 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=1318730 prompt_tokens=8890 completion_tokens=427 total_tokens=9317 hit_token_limit=False retried_for_quality=False response_chars=2229
+2026-05-18 11:00:19,843 INFO [athenai.api] chat_complete session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac study_task=answer response_chars=2229 prompt_tokens=8890 completion_tokens=427 total_tokens=9317 hit_token_limit=False retried_for_quality=False
+2026-05-18 11:00:19,848 INFO [athenai.api] request_complete request_id=29d3d86f-9184-4619-a70c-8ed750a014b7 method=POST path=/chat/ status=200 elapsed_ms=1318746
+2026-05-18 11:16:21,387 INFO [athenai.api] request_begin request_id=849b762c-a84e-4907-a3dc-73b3d416c47f method=POST path=/chat/
+2026-05-18 11:16:21,389 INFO [athenai.api] chat_begin session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac prompt_chars=34 use_internet=False has_image=False
+2026-05-18 11:16:21,390 INFO [athenai.api] retrieve_full_context_complete session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac source_chunks=35 returned=35 used_chars=36638 max_chars=0
+2026-05-18 11:16:21,390 INFO [athenai.api] chat_context session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac study_task=answer context_chunks=35 top_k=4
+2026-05-18 11:16:21,394 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=34 context_chunks=35 mock=False use_internet=False has_image=False
+2026-05-18 11:16:21,423 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=8889 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-18 11:24:44,169 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=502770 prompt_tokens=8889 completion_tokens=79 total_tokens=8968 hit_token_limit=False retried_for_quality=False response_chars=437
+2026-05-18 11:24:44,171 INFO [athenai.api] chat_complete session_id=2d3b3b28-eb3f-4373-8fd0-816939ae04ac study_task=answer response_chars=437 prompt_tokens=8889 completion_tokens=79 total_tokens=8968 hit_token_limit=False retried_for_quality=False
+2026-05-18 11:24:44,172 INFO [athenai.api] request_complete request_id=849b762c-a84e-4907-a3dc-73b3d416c47f method=POST path=/chat/ status=200 elapsed_ms=502780
+2026-05-18 11:55:03,135 INFO [athenai.api] request_begin request_id=a605f5a2-1a98-411d-9392-8fd811adb555 method=POST path=/upload/
+2026-05-18 11:55:03,141 INFO [athenai.api] upload_begin session_id=a26a67ab-6002-453c-b23c-67128fea380f file_count=1
+2026-05-18 11:55:03,142 INFO [athenai.api] upload_file_read session_id=a26a67ab-6002-453c-b23c-67128fea380f filename=Archive Presentations.dfxp bytes=7686
+2026-05-18 11:55:03,148 INFO [athenai.api] document_indexed session_id=a26a67ab-6002-453c-b23c-67128fea380f filename=Archive Presentations.dfxp chars=3893 chunks_added=4 session_chunks=4
+2026-05-18 11:55:03,149 INFO [athenai.api] upload_complete session_id=a26a67ab-6002-453c-b23c-67128fea380f uploaded_files=1 indexed=1 skipped=0 added_chunks=4 total_chunks=4
+2026-05-18 11:55:03,150 INFO [athenai.api] request_complete request_id=a605f5a2-1a98-411d-9392-8fd811adb555 method=POST path=/upload/ status=200 elapsed_ms=15
+2026-05-18 11:55:12,810 INFO [athenai.api] request_begin request_id=c9bf62ea-141b-4fe3-a591-2244b6b62b6b method=POST path=/chat/
+2026-05-18 11:55:12,812 INFO [athenai.api] chat_begin session_id=a26a67ab-6002-453c-b23c-67128fea380f prompt_chars=28 use_internet=False has_image=False
+2026-05-18 11:55:12,812 INFO [athenai.api] retrieve_full_context_complete session_id=a26a67ab-6002-453c-b23c-67128fea380f source_chunks=4 returned=4 used_chars=4593 max_chars=0
+2026-05-18 11:55:12,812 INFO [athenai.api] chat_context session_id=a26a67ab-6002-453c-b23c-67128fea380f study_task=answer context_chunks=4 top_k=4
+2026-05-18 11:55:12,814 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=28 context_chunks=4 mock=False use_internet=False has_image=False
+2026-05-18 11:55:12,843 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=1435 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-18 11:55:23,213 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=10398 prompt_tokens=1435 completion_tokens=206 total_tokens=1641 hit_token_limit=False retried_for_quality=False response_chars=1097
+2026-05-18 11:55:23,214 INFO [athenai.api] chat_complete session_id=a26a67ab-6002-453c-b23c-67128fea380f study_task=answer response_chars=1097 prompt_tokens=1435 completion_tokens=206 total_tokens=1641 hit_token_limit=False retried_for_quality=False
+2026-05-18 11:55:23,215 INFO [athenai.api] request_complete request_id=c9bf62ea-141b-4fe3-a591-2244b6b62b6b method=POST path=/chat/ status=200 elapsed_ms=10404
+2026-05-18 11:55:48,833 INFO [athenai.api] request_begin request_id=384bf371-25d7-415a-b86a-da6f1304a913 method=POST path=/chat/
+2026-05-18 11:55:48,834 INFO [athenai.api] chat_begin session_id=a26a67ab-6002-453c-b23c-67128fea380f prompt_chars=28 use_internet=False has_image=False
+2026-05-18 11:55:48,834 INFO [athenai.api] retrieve_full_context_complete session_id=a26a67ab-6002-453c-b23c-67128fea380f source_chunks=4 returned=4 used_chars=4593 max_chars=0
+2026-05-18 11:55:48,835 INFO [athenai.api] chat_context session_id=a26a67ab-6002-453c-b23c-67128fea380f study_task=answer context_chunks=4 top_k=4
+2026-05-18 11:55:48,837 INFO [athenai.qwen] qwen_chat_begin study_task=answer prompt_chars=28 context_chunks=4 mock=False use_internet=False has_image=False
+2026-05-18 11:55:48,844 INFO [athenai.qwen] qwen_generate_begin study_task=answer prompt_tokens=1436 max_new_tokens=1024 settings={'do_sample': True, 'temperature': 0.55, 'top_p': 0.9, 'top_k': 40}
+2026-05-18 11:56:01,377 INFO [athenai.qwen] qwen_chat_complete study_task=answer mock=False elapsed_ms=12540 prompt_tokens=1436 completion_tokens=278 total_tokens=1714 hit_token_limit=False retried_for_quality=False response_chars=1523
+2026-05-18 11:56:01,379 INFO [athenai.api] chat_complete session_id=a26a67ab-6002-453c-b23c-67128fea380f study_task=answer response_chars=1523 prompt_tokens=1436 completion_tokens=278 total_tokens=1714 hit_token_limit=False retried_for_quality=False
+2026-05-18 11:56:01,379 INFO [athenai.api] request_complete request_id=384bf371-25d7-415a-b86a-da6f1304a913 method=POST path=/chat/ status=200 elapsed_ms=12546

@@ -368,6 +368,11 @@ body {
   animation: athenaiAvatarPulse 1.9s ease-in-out infinite;
 }
 
+.avatar-ai.is-thinking .avatar-ai-art {
+  animation: athenaiOwlBob 2.4s ease-in-out infinite;
+  will-change: transform;
+}
+
 .avatar-ai.is-thinking .athenai-star {
   animation: athenaiStarPulse 1.35s ease-in-out infinite;
   animation-delay: -180ms;
@@ -410,6 +415,17 @@ body {
   }
 }
 
+@keyframes athenaiOwlBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
 @keyframes athenaiBlink {
   0%,
   90%,
@@ -420,6 +436,13 @@ body {
   93%,
   96% {
     transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-ai.is-thinking .avatar-ai-art {
+    animation: none;
+    will-change: auto;
   }
 }
 
