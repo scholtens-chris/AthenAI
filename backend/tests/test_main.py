@@ -8,6 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import main
+from mediasite_utils import MediasiteClient, extract_presentation_text, odata_path
 
 
 class FakeLLM:
@@ -133,6 +134,7 @@ def test_study_task_inference_overview_full_context_and_public_source(monkeypatc
     main.add_document_to_session("s2", "second.txt", "diagram concept review")
 
     assert main.infer_study_task("Quiz me on this") == "quiz"
+    assert main.infer_study_task("Create flashcards") == "flashcards"
     assert main.infer_study_task("Summarize chapter 3") == "summary"
     assert main.infer_study_task("Find where mitosis was mentioned") == "find"
     assert main.infer_study_task("What are the key takeaways?") == "takeaways"
@@ -140,6 +142,7 @@ def test_study_task_inference_overview_full_context_and_public_source(monkeypatc
     assert main.infer_study_task("Explain photosynthesis") == "explain"
     assert main.infer_study_task("Answer this") == "answer"
     assert main.is_broad_study_prompt("quiz me", "quiz")
+    assert main.is_broad_study_prompt("create flashcards", "flashcards")
     assert main.is_broad_study_prompt("main points", "takeaways")
     assert main.is_broad_study_prompt("explain this", "explain")
     assert not main.is_broad_study_prompt("explain the exact role of ATP in this pathway", "explain")
@@ -271,6 +274,153 @@ def test_api_endpoints_use_uploaded_context_and_llm(monkeypatch):
     assert summary.json()["summary"].startswith("summary:")
     video = client.post("/video-link/", json={"session_id": session_id, "query": "mitosis timestamp"})
     assert video.json()["response"].startswith("find:")
+
+
+def test_mediasite_client_headers_paths_and_text_extraction():
+    client = MediasiteClient(
+        base_url="https://example.edu/Mediasite",
+        api_key="key-1",
+        username="user",
+        password="pass",
+    )
+
+    assert client.api_root == "https://example.edu/Mediasite/api/v1"
+    assert client.resource_url("Presentations('abc')", {"$select": "full"}).endswith(
+        "/api/v1/Presentations('abc')?%24select=full"
+    )
+    assert client.headers()["sfapikey"] == "key-1"
+    assert client.headers()["Authorization"].startswith("Basic ")
+    assert odata_path("Presentations", "abc-123", "CaptionContent") == "Presentations('abc-123')/CaptionContent"
+
+    identity_client = MediasiteClient(
+        base_url="https://example.edu/Mediasite/api/v1",
+        api_key="key-1",
+        username="admin",
+        password="secret",
+        impersonate_username="student",
+    )
+    assert identity_client.headers()["Authorization"].startswith("SfIdentTicket ")
+
+    text = extract_presentation_text(
+        {"Title": "Lecture One", "Description": "Intro"},
+        ocr_content={"value": [{"Title": "Slide", "OcrText": "Cell division"}]},
+        caption_content={"value": [{"CaptionText": "Mitosis begins"}]},
+        slide_details_content={"SlideDetails": [{"Content": "Slide detail notes"}]},
+    )
+    assert text == "Lecture One Intro Slide Cell division Mitosis begins Slide detail notes"
+
+
+def test_mediasite_import_presentation_indexes_available_text(monkeypatch):
+    main.sessions.clear()
+
+    class FakeMediasiteClient:
+        def __init__(self, **kwargs):
+            self.base_url = kwargs["base_url"]
+
+        def get_json(self, path, params=None):
+            if path == "Presentations('abc123')":
+                assert params == {"$select": "full"}
+                return {"Title": "Cell Lecture", "Description": "Course intro"}
+            if path == "Presentations('abc123')/OcrContent":
+                return {"value": [{"Title": "Mitosis", "OcrText": "Cells divide"}]}
+            if path == "Presentations('abc123')/CaptionContent":
+                return {"value": [{"CaptionText": "The nucleus prepares for division."}]}
+            if path == "Presentations('abc123')/SlideDetailsContent":
+                return {"SlideDetails": [{"Content": "Slide detail line"}]}
+            raise AssertionError(path)
+
+        def get_text(self, _path, params=None):
+            return ""
+
+    monkeypatch.setattr(main, "MEDIASITE_BASE_URL", "https://example.edu/Mediasite")
+    monkeypatch.setattr(main, "MEDIASITE_API_KEY", "key-1")
+    monkeypatch.setattr(main, "MediasiteClient", FakeMediasiteClient)
+
+    client = TestClient(main.app)
+    response = client.post("/mediasite/import-presentation/", json={"presentation_id": "abc123"})
+    body = response.json()
+
+    assert response.status_code == 200
+    assert body["session_id"]
+    assert body["filename"] == "Cell_Lecture_abc123.txt"
+    assert body["added_chunk_count"] == 1
+    assert body["has_slide_details_text"] is True
+    assert main.retrieve_context(body["session_id"], "nucleus division")[0]["filename"] == body["filename"]
+
+
+def test_mediasite_channel_listing_and_bulk_import(monkeypatch):
+    main.sessions.clear()
+
+    class FakeMediasiteClient:
+        def __init__(self, **kwargs):
+            self.base_url = kwargs["base_url"]
+
+        def get_json(self, path, params=None):
+            if path == "MediasiteChannels('channel1')/Presentations":
+                return {"value": [{"Id": "p1", "Title": "One"}, {"PresentationId": "p2", "Title": "Two"}]}
+            if path == "Presentations('p1')":
+                return {"Title": "First Video", "Description": "Overview"}
+            if path == "Presentations('p1')/OcrContent":
+                return {"value": [{"OcrText": "slide OCR alpha"}]}
+            if path == "Presentations('p1')/CaptionContent":
+                return {"value": [{"CaptionText": "caption alpha"}]}
+            if path == "Presentations('p1')/SlideDetailsContent":
+                return {"SlideDetails": [{"Content": "slide details alpha"}]}
+            if path == "Presentations('p2')":
+                return {"Title": "Second Video"}
+            if path == "Presentations('p2')/OcrContent":
+                return {"value": [{"OcrText": "slide OCR beta"}]}
+            if path == "Presentations('p2')/CaptionContent":
+                return {"value": [{"CaptionText": "caption beta"}]}
+            if path == "Presentations('p2')/SlideDetailsContent":
+                return {"SlideDetails": [{"Content": "slide details beta"}]}
+            raise AssertionError(path)
+
+        def get_text(self, _path, params=None):
+            return ""
+
+    monkeypatch.setattr(main, "MEDIASITE_BASE_URL", "https://example.edu/Mediasite")
+    monkeypatch.setattr(main, "MEDIASITE_API_KEY", "key-1")
+    monkeypatch.setattr(main, "MediasiteClient", FakeMediasiteClient)
+    client = TestClient(main.app)
+
+    listing = client.post("/mediasite/channel-presentations/", json={"channel_id": "channel1"})
+    assert listing.status_code == 200
+    assert listing.json()["presentation_ids"] == ["p1", "p2"]
+
+    imported = client.post("/mediasite/import-channel/", json={"channel_id": "channel1"})
+    body = imported.json()
+    assert imported.status_code == 200
+    assert body["presentation_ids"] == ["p1", "p2"]
+    assert [item["presentation_id"] for item in body["imported"]] == ["p1", "p2"]
+    assert body["skipped"] == []
+    assert body["failed"] == []
+    assert body["added_chunk_count"] == 2
+    assert body["imported"][0]["has_slide_details_text"] is True
+    assert main.retrieve_context(body["session_id"], "caption beta")[0]["filename"] == "Second_Video_p2.txt"
+
+
+def test_mediasite_invalid_channel_key_explains_guid_requirement(monkeypatch):
+    class FakeMediasiteClient:
+        def __init__(self, **kwargs):
+            self.base_url = kwargs["base_url"]
+
+        def get_json(self, path, params=None):
+            raise main.MediasiteApiError(
+                "Mediasite API returned HTTP 400.",
+                status_code=400,
+                body='{"odata.error":{"code":"InvalidKey"}}',
+            )
+
+    monkeypatch.setattr(main, "MEDIASITE_BASE_URL", "https://example.edu/Mediasite/api/v1")
+    monkeypatch.setattr(main, "MEDIASITE_API_KEY", "key-1")
+    monkeypatch.setattr(main, "MediasiteClient", FakeMediasiteClient)
+
+    client = TestClient(main.app)
+    response = client.post("/mediasite/import-channel/", json={"channel_id": "mediasiteadmin-mediasiteadmin"})
+
+    assert response.status_code == 400
+    assert "Channel imports require a real Mediasite channel/catalog GUID" in response.json()["detail"]["message"]
 
 
 def test_api_empty_context_messages(monkeypatch):

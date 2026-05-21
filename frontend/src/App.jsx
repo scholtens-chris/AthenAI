@@ -6,7 +6,17 @@ import athenaiAvatarSvg from "./assets/athenai-avatar.svg?raw";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
 const SESSION_STORAGE_KEY = "athenai.session.v1";
+const SAFETY_NOTICE_STORAGE_KEY = "athenai.safetyNotice.dismissed.v1";
 const SESSION_TTL_MS = Number(import.meta.env.VITE_SESSION_TTL_HOURS || 12) * 60 * 60 * 1000;
+const MEDIASITE_ID_PATTERN = "[0-9a-f]{32,34}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+const MEDIASITE_CHANNEL_SEGMENT_PATTERN = "[A-Za-z0-9._~-]+";
+const GUID_PATTERN = new RegExp(MEDIASITE_ID_PATTERN, "gi");
+const STARTER_TEXT =
+  "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your video presentation or your channel of videos like:";
+const LEGACY_STARTER_TEXTS = [
+  "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your channel of videos like:",
+  "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your course materials like:",
+];
 
 function logClientError(operation, error, details = {}) {
   console.error("[AthenAI]", operation, {
@@ -19,10 +29,13 @@ function logClientError(operation, error, details = {}) {
 const starterMessages = [
   {
     sender: "ai",
-    text: "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your channel of videos like:",
+    text: STARTER_TEXT,
     examples: [
       "Explain this lecture",
+      "Summarize this",
       "Quiz me",
+      "Create flashcards",
+      "Make me a study guide",
       "Summarize chapter 3",
       "Find where the professor explained mitosis",
       "What are key takeaways",
@@ -30,23 +43,180 @@ const starterMessages = [
   },
 ];
 
-function loadStoredSession() {
+export function detectMediasiteContextFromUrl(href = window.location.href) {
+  let url;
   try {
-    const stored = JSON.parse(window.localStorage.getItem(SESSION_STORAGE_KEY) || "null");
+    url = new URL(href, window.location.origin);
+  } catch (_error) {
+    return null;
+  }
+
+  const sourceUrlParamNames = ["source_url", "sourceUrl", "parent_url", "parentUrl", "page_url", "pageUrl", "mediasite_url", "mediasiteUrl"];
+  for (const name of sourceUrlParamNames) {
+    const value = url.searchParams.get(name);
+    if (!value) continue;
+
+    const context = detectMediasiteContextFromUrl(value);
+    if (context) return { ...context, source: `${name}-query` };
+  }
+
+  const explicitMappings = [
+    ["presentation", ["presentation_id", "presentationId", "presentation", "pid"]],
+    ["channel", ["channel_id", "channelId", "catalog_id", "catalogId", "catalog", "cid"]],
+  ];
+
+  for (const [type, names] of explicitMappings) {
+    for (const name of names) {
+      const value = url.searchParams.get(name);
+      const match = value?.match(GUID_PATTERN)?.[0];
+      if (match) {
+        return { type, id: match, source: "query" };
+      }
+    }
+  }
+
+  const decodedHref = decodeURIComponent(url.href);
+  const decodedPath = decodeURIComponent(url.pathname);
+  const channelWatchMatch = decodedPath.match(
+    new RegExp(`/channel/(${MEDIASITE_CHANNEL_SEGMENT_PATTERN})/watch/(${MEDIASITE_ID_PATTERN})`, "i"),
+  );
+  if (channelWatchMatch) {
+    return {
+      type: "presentation",
+      id: channelWatchMatch[2],
+      channelId: channelWatchMatch[1],
+      source: "channel-watch-url",
+    };
+  }
+
+  const channelMatch = decodedPath.match(
+    new RegExp(`/channel/(${MEDIASITE_ID_PATTERN})(?:/|$)`, "i"),
+  );
+  if (channelMatch) {
+    return { type: "channel", id: channelMatch[1], source: "channel-url" };
+  }
+
+  const playMatch = decodedPath.match(
+    new RegExp(`/play/(${MEDIASITE_ID_PATTERN})(?:/|$)`, "i"),
+  );
+  if (playMatch) {
+    return { type: "presentation", id: playMatch[1], source: "play-url" };
+  }
+
+  const matches = [...decodedHref.matchAll(GUID_PATTERN)].map((match) => match[0]);
+  if (!matches.length) return null;
+
+  const lowerHref = decodedHref.toLowerCase();
+  const type =
+    /\b(channel|channels|catalog|catalogs|showcasechannel|showcasechannels|playlist|playlists)\b/.test(lowerHref)
+      ? "channel"
+      : "presentation";
+
+  return { type, id: matches[matches.length - 1], source: "url" };
+}
+
+function collectEmbedCandidateUrls() {
+  const candidates = [];
+  const addCandidate = (href) => {
+    if (href && !candidates.includes(href)) candidates.push(href);
+  };
+
+  addCandidate(window.location.href);
+
+  try {
+    if (window.parent && window.parent !== window) {
+      addCandidate(window.parent.location.href);
+    }
+  } catch (_error) {
+    // Cross-origin parent URLs are not readable from an iframe; document.referrer is the browser-safe fallback.
+  }
+
+  addCandidate(document.referrer);
+
+  return candidates;
+}
+
+export function detectMediasiteContext() {
+  for (const href of collectEmbedCandidateUrls()) {
+    const context = detectMediasiteContextFromUrl(href);
+    if (context) return context;
+  }
+
+  return null;
+}
+
+function contextStorageKey(context) {
+  return context ? `${SESSION_STORAGE_KEY}.${context.type}.${context.id}` : SESSION_STORAGE_KEY;
+}
+
+function parseManualMediasiteContext(value) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const prefixedMatch = trimmed.match(/^(channel|presentation)\s*:\s*(.+)$/i);
+  if (prefixedMatch) {
+    return {
+      type: prefixedMatch[1].toLowerCase(),
+      id: prefixedMatch[2].trim(),
+      source: "manual",
+    };
+  }
+
+  const looksLikeUrlOrPath =
+    /^[a-z][a-z\d+.-]*:/i.test(trimmed) || trimmed.includes("/") || trimmed.includes("?") || trimmed.includes("&");
+  if (looksLikeUrlOrPath) {
+    const detectedContext = detectMediasiteContextFromUrl(trimmed);
+    if (detectedContext) return { ...detectedContext, source: "manual-url" };
+  }
+
+  return {
+    type: "presentation",
+    id: trimmed,
+    source: "manual",
+  };
+}
+
+async function apiErrorMessage(response, fallback) {
+  try {
+    const data = await response.json();
+    const detail = data?.detail;
+    if (typeof detail === "string") return detail;
+    if (typeof detail?.message === "string") return detail.message;
+    if (detail) return JSON.stringify(detail);
+  } catch (_error) {
+    // Fall through to the caller's generic message when the API returns no JSON body.
+  }
+
+  return fallback;
+}
+
+function loadStoredSession(storageKey = SESSION_STORAGE_KEY) {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(storageKey) || "null");
     if (!stored || stored.expiresAt <= Date.now()) {
-      window.localStorage.removeItem(SESSION_STORAGE_KEY);
+      window.localStorage.removeItem(storageKey);
       return null;
     }
     return stored;
   } catch (error) {
     logClientError("loadStoredSession failed", error);
-    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    window.localStorage.removeItem(storageKey);
     return null;
   }
 }
 
 function isStarterOnly(history) {
-  return history.length === starterMessages.length && history[0]?.text === starterMessages[0].text;
+  return history.length === starterMessages.length && isStarterMessage(history[0]);
+}
+
+function isStarterMessage(message) {
+  return message?.sender === "ai" && [STARTER_TEXT, ...LEGACY_STARTER_TEXTS].includes(message.text);
+}
+
+function normalizeChatHistory(history) {
+  if (!history?.length) return starterMessages;
+  if (!isStarterMessage(history[0])) return history;
+  return [starterMessages[0], ...history.slice(1)];
 }
 
 function TokenUsage({ usage }) {
@@ -89,30 +259,93 @@ function ChatAvatar({ sender, thinking = false }) {
 }
 
 function App() {
-  const storedSession = useRef(loadStoredSession());
+  const mediasiteContext = useRef(detectMediasiteContext());
+  const storageKey = useRef(contextStorageKey(mediasiteContext.current));
+  const storedSession = useRef(loadStoredSession(storageKey.current));
   const shouldRestoreSession = useRef(Boolean(storedSession.current?.sessionId));
+  const attemptedMediasiteImport = useRef(false);
   const [chatHistory, setChatHistory] = useState(
-    storedSession.current?.chatHistory?.length ? storedSession.current.chatHistory : starterMessages,
+    normalizeChatHistory(storedSession.current?.chatHistory),
   );
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState(storedSession.current?.sessionId || null);
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [debugImporting, setDebugImporting] = useState(false);
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState("");
+  const [showSafetyNotice, setShowSafetyNotice] = useState(
+    () => window.localStorage.getItem(SAFETY_NOTICE_STORAGE_KEY) !== "true",
+  );
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!sessionId) return;
     window.localStorage.setItem(
-      SESSION_STORAGE_KEY,
+      storageKey.current,
       JSON.stringify({
         sessionId,
         chatHistory,
+        mediasiteContext: mediasiteContext.current,
         expiresAt: Date.now() + SESSION_TTL_MS,
       }),
     );
   }, [chatHistory, sessionId]);
+
+  const importMediasiteContext = async (context, { manual = false, signal } = {}) => {
+    const endpoint = context.type === "channel" ? "import-channel" : "import-presentation";
+    const body =
+      context.type === "channel"
+        ? { session_id: sessionId, channel_id: context.id, resource_type: "MediasiteChannels" }
+        : { session_id: sessionId, presentation_id: context.id };
+
+    setStatus(
+      context.type === "channel"
+        ? "Loading Mediasite channel captions, OCR, and slide details..."
+        : "Loading Mediasite presentation captions, OCR, and slide details...",
+    );
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/mediasite/${endpoint}/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        signal,
+      });
+
+      if (!res.ok) throw new Error(await apiErrorMessage(res, "Mediasite import failed"));
+
+      const data = await res.json();
+      if (data.session_id) setSessionId(data.session_id);
+      const importedCount = data.imported?.length;
+      const indexedCount = importedCount ?? data.indexed_files?.length ?? 0;
+      const chunks = data.added_chunk_count ?? data.chunk_count ?? 0;
+      setStatus(
+        context.type === "channel"
+          ? `${indexedCount} Mediasite video${indexedCount === 1 ? "" : "s"} loaded (${chunks} source chunk${chunks === 1 ? "" : "s"}).`
+          : `Mediasite presentation loaded (${chunks} source chunk${chunks === 1 ? "" : "s"}).`,
+      );
+    } catch (error) {
+      if (error.name === "AbortError") return;
+      logClientError("mediasite import failed", error, { context, manual });
+      setStatus(
+        manual
+          ? `Debug import failed: ${error.message}`
+          : "Could not automatically load Mediasite content. You can still upload files manually.",
+      );
+    }
+  };
+
+  useEffect(() => {
+    const context = mediasiteContext.current;
+    if (!context || attemptedMediasiteImport.current || storedSession.current?.sessionId) return;
+    attemptedMediasiteImport.current = true;
+
+    const controller = new AbortController();
+    importMediasiteContext(context, { signal: controller.signal });
+
+    return () => controller.abort();
+  }, [sessionId]);
 
   useEffect(() => {
     if (!sessionId || !shouldRestoreSession.current || !isStarterOnly(chatHistory)) return;
@@ -266,12 +499,39 @@ function App() {
     uploadFiles(selectedFiles);
   };
 
+  const handleDebugImport = async () => {
+    if (debugImporting) return;
+
+    const value = window.prompt(
+      "Enter a Mediasite ID or URL. Use channel:<id> for a channel, presentation:<id> for a presentation.",
+    );
+    if (value === null) return;
+
+    let context = parseManualMediasiteContext(value);
+    if (!context?.id) {
+      setStatus("Debug import cancelled because no ID was entered.");
+      return;
+    }
+
+    const hasExplicitType = /^(channel|presentation)\s*:/i.test(value.trim()) || context.source !== "manual";
+    if (!hasExplicitType && window.confirm("Import this ID as a channel? Cancel imports it as a presentation.")) {
+      context = { ...context, type: "channel" };
+    }
+
+    setDebugImporting(true);
+    try {
+      await importMediasiteContext(context, { manual: true });
+    } finally {
+      setDebugImporting(false);
+    }
+  };
+
   const handleClearChat = () => {
     if (sending) return;
     const confirmed = window.confirm("Clear this chat and start a new session?");
     if (!confirmed) return;
 
-    window.localStorage.removeItem(SESSION_STORAGE_KEY);
+    window.localStorage.removeItem(storageKey.current);
     shouldRestoreSession.current = false;
     setChatHistory(starterMessages);
     setSessionId(null);
@@ -285,17 +545,30 @@ function App() {
     if (!uploading) fileInputRef.current?.click();
   };
 
+  const dismissSafetyNotice = () => {
+    window.localStorage.setItem(SAFETY_NOTICE_STORAGE_KEY, "true");
+    setShowSafetyNotice(false);
+  };
+
   return (
     <main className="phoenix-chat-shell">
       <section className="chat-panel">
         <section className="conversation-card">
           <header className="conversation-header">
-            <div>
-              <p className="eyebrow mb-1">Conversation</p>
-              <h2 className="brand-heading mb-0">
-                <span className="brand-athen">Athen</span>
-                <span className="brand-ai">AI</span>
-              </h2>
+            <div className="brand-lockup">
+              <span className="header-avatar" aria-hidden="true">
+                <span className="avatar-ai-art">
+                  <span className="avatar-ai-svg" dangerouslySetInnerHTML={{ __html: athenaiAvatarSvg }} />
+                </span>
+              </span>
+              <div className="brand-copy">
+                <h2 className="brand-heading mb-0">
+                  <span className="brand-athen">Athen</span>
+                  <span className="brand-ai">AI</span>
+                  <span className="beta-pill">Beta</span>
+                </h2>
+                <p className="eyebrow mb-1">Study Agent</p>
+              </div>
             </div>
             <input
               id="source-files"
@@ -328,6 +601,25 @@ function App() {
               </button>
               <button
                 type="button"
+                className="status-pill debug-pill"
+                onClick={handleDebugImport}
+                disabled={debugImporting}
+                aria-describedby="debug-import-tooltip"
+              >
+                <span className="status-pill-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" focusable="false">
+                    <path d="M4 4h16v4H4V4Zm2 2v1h12V6H6Z" />
+                    <path d="M4 10h16v10H4V10Zm2 2v6h12v-6H6Z" />
+                    <path d="M8 14h8v2H8v-2Z" />
+                  </svg>
+                </span>
+                {debugImporting ? "Loading Debug ID" : "DEBUG: CHANNEL/PRESENTATION ID"}
+                <span id="debug-import-tooltip" className="upload-tooltip" role="tooltip">
+                  Manually import a Mediasite channel or presentation ID for API testing.
+                </span>
+              </button>
+              <button
+                type="button"
                 className="clear-chat-button"
                 onClick={handleClearChat}
                 disabled={sending || isStarterOnly(chatHistory)}
@@ -346,6 +638,17 @@ function App() {
               </button>
             </div>
           </header>
+
+          {showSafetyNotice && (
+            <div className="safety-notice" role="note" aria-label="AthenAI beta notice">
+              <div className="safety-notice-copy">
+                AthenAI can make mistakes or produce incomplete results. Review all outputs before use.
+              </div>
+              <button type="button" className="safety-notice-dismiss" onClick={dismissSafetyNotice}>
+                Dismiss
+              </button>
+            </div>
+          )}
 
           <div className="message-list" aria-live="polite">
             {chatHistory.map((msg, index) => (

@@ -167,6 +167,48 @@ def test_environment_configuration_and_generation_settings(monkeypatch):
                     "B) b",
                     "C) c",
                     "D) d",
+                    "Answer Key:",
+                    "Question 1: What is alpha?",
+                    "A) a",
+                    "B) b",
+                    "C) c",
+                    "D) d",
+                    "Answer: A) a",
+                    "Explanation: Alpha is supported. [1]",
+                    "Question 2: What is beta?",
+                    "A) a",
+                    "B) b",
+                    "C) c",
+                    "D) d",
+                ]
+            ),
+            True,
+        ),
+        (
+            "\n".join(
+                [
+                    "Question 1: What is alpha?",
+                    "A) a",
+                    "B) b",
+                    "C) c",
+                    "D) d",
+                    "Answer Key",
+                    "1. A) a - Alpha is supported. [1]",
+                    "Answer Key Summary:",
+                    "Question 1: What is alpha?",
+                    "Answer: A) a",
+                ]
+            ),
+            True,
+        ),
+        (
+            "\n".join(
+                [
+                    "Question 1: What is alpha?",
+                    "A) a",
+                    "B) b",
+                    "C) c",
+                    "D) d",
                     "Answer key",
                     "1. A and B because [1]",
                 ]
@@ -249,11 +291,32 @@ def test_build_messages_formats_context_and_quiz_requirements(monkeypatch):
     assert "[1] notes.txt chunk 2" in user_prompt
     assert "[2] source 2" in user_prompt
     assert "Quiz quality requirements" in user_prompt
+    assert "Do not include an answer key after each question" in user_prompt
+    assert "must not repeat question text or list A-D choices" in user_prompt
     assert "Question: Quiz me" in user_prompt
 
     retry = llm._build_quiz_retry_messages("Quiz me", context, "bad draft")
     assert retry[-2] == {"role": "assistant", "content": "bad draft"}
     assert "Repair the quiz" in retry[-1]["content"]
+    assert "must not repeat full question text or A-D answer choices" in retry[-1]["content"]
+
+
+def test_build_messages_formats_flashcard_requirements(monkeypatch):
+    monkeypatch.setenv("ATHENAI_MOCK_LLM", "1")
+    llm = QwenLLM()
+
+    messages = llm._build_messages(
+        "Create flashcards",
+        [{"filename": "notes.txt", "chunk_index": 0, "text": "Mitosis divides cells."}],
+        "flashcards",
+    )
+
+    user_prompt = messages[1]["content"]
+    assert "Create a flashcard set from the excerpts" in user_prompt
+    assert "Card N" in user_prompt
+    assert "Front: <question or term>" in user_prompt
+    assert "Back: <concise answer, definition, or explanation> [source]" in user_prompt
+    assert "Question: Create flashcards" in user_prompt
 
 
 def test_mock_chat_and_estimated_usage(monkeypatch):

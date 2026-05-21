@@ -11,7 +11,7 @@ from typing import Optional
 
 DEFAULT_QWEN_MODEL = "Qwen/Qwen3-1.7B"
 DEFAULT_MAX_NEW_TOKENS = 1024
-DEFAULT_LONG_TASK_MAX_NEW_TOKENS = 2048
+DEFAULT_LONG_TASK_MAX_NEW_TOKENS = 7500
 logger = logging.getLogger("athenai.qwen")
 
 TASK_INSTRUCTIONS = {
@@ -22,9 +22,18 @@ TASK_INSTRUCTIONS = {
         "Multiple-choice questions must have exactly four answer options labeled A), B), C), "
         "and D), with only one correct option and plausible distractors based on the excerpts. "
         "True/false questions must present both True) and False) options. "
-        "Put a complete answer key after the questions with the correct answer, a one-sentence "
-        "explanation, and source citations. For multiple-choice questions, include the correct "
-        "letter and option text. Do not make every multiple-choice answer the same letter."
+        "Put exactly one compact answer key after all questions with the correct answer, a one-sentence "
+        "explanation, and source citations. For multiple-choice questions, include only the correct "
+        "letter and correct option text in the answer key; do not repeat the full question or all answer options. "
+        "Do not make every multiple-choice answer the same letter."
+    ),
+    "flashcards": (
+        "Create a flashcard set from the excerpts. Include 8-12 cards when enough material exists. "
+        "Use this exact structure for each card: 'Card N', then 'Front: <question or term>', then "
+        "'Back: <concise answer, definition, or explanation> [source]'. Mix definition, concept, "
+        "process, comparison, and application cards when the source material supports them. Keep each "
+        "back short enough to review quickly, but include the essential source-grounded detail. End "
+        "with a brief 'How to study these' line."
     ),
     "summary": (
         "Create a structured summary artifact. If the user names a chapter, section, or topic, "
@@ -101,7 +110,7 @@ class QwenLLM:
         return max(1, len(re.findall(r"\S+", text or "")))
 
     def _max_new_tokens_for_task(self, study_task: str) -> int:
-        if study_task in {"quiz", "summary", "takeaways", "study_guide", "explain"}:
+        if study_task in {"quiz", "flashcards", "summary", "takeaways", "study_guide", "explain"}:
             return self.long_task_max_new_tokens
         return self.max_new_tokens
 
@@ -131,8 +140,18 @@ class QwenLLM:
         answer_key_match = re.search(r"(?is)\banswer\s+key\b(.+)$", response)
         if not answer_key_match:
             return True
+        if len(re.findall(r"(?i)\banswer\s+key\b", response)) != 1:
+            return True
 
         question_text = response[:answer_key_match.start()]
+        answer_key_text = answer_key_match.group(1)
+        if re.search(r"(?i)\banswer\s+key\s+summary\b", answer_key_text):
+            return True
+        if re.search(r"(?im)^\s*(?:question\s*)?\d+[\).:]\s+\S.*\n\s*A[\).]\s+\S", answer_key_text):
+            return True
+        if re.search(r"(?im)^\s*[A-D][\).]\s+\S", answer_key_text):
+            return True
+
         question_blocks = re.split(r"(?im)^\s*(?=question\s+\d+|(?:\d+)[\).:])", question_text)
         for block in question_blocks:
             if not block.strip():
@@ -162,7 +181,7 @@ class QwenLLM:
             if options and question_number:
                 key_entry_match = re.search(
                     rf"(?im)^\s*(?:question\s*)?{re.escape(question_number)}[\).:\s-]+(.+)$",
-                    answer_key_match.group(1),
+                    answer_key_text,
                 )
                 if not key_entry_match:
                     return True
@@ -172,7 +191,7 @@ class QwenLLM:
                 if re.search(r"(?i)^[A-D]\s+(?:and|or)\s+[A-D]\b", key_entry):
                     return True
 
-        key_letters = re.findall(r"(?im)^\s*(?:question\s*)?\d+[\).:\s-]+([A-D])\b", answer_key_match.group(1))
+        key_letters = re.findall(r"(?im)^\s*(?:question\s*)?\d+[\).:\s-]+([A-D])\b", answer_key_text)
         if len(key_letters) >= 4 and len(set(key_letters)) == 1:
             return True
 
@@ -246,7 +265,11 @@ class QwenLLM:
                 "- Avoid making every multiple-choice answer the same letter.\n"
                 "- Distribute correct answers across different letters when possible. Do not use the same correct letter repeatedly unless unavoidable.\n"
                 "- After all questions, include an 'Answer Key' section.\n"
-                "- Each multiple-choice answer key entry must include: question number, correct letter, full correct option text, brief explanation, and source citation.\n"
+                "- Include exactly one 'Answer Key' section, and put it only after all questions.\n"
+                "- Do not include an answer key after each question.\n"
+                "- Do not include an 'Answer Key Summary' section.\n"
+                "- The Answer Key must be compact. It must not repeat question text or list A-D choices.\n"
+                "- Each multiple-choice answer key entry must use this exact compact format: 'N. <letter>) <correct option text> - <brief explanation> [source]'.\n"
                 "- Each true/false answer key entry must include: question number, correct True/False answer, brief explanation, and source citation.\n"
                 "- Each open-ended answer key entry must include: question number, expected answer, brief explanation, and source citation.\n"
                 "- Do not include fill-in-the-blank or essay questions.\n"
@@ -271,7 +294,9 @@ class QwenLLM:
                 "must have exactly A), B), C), and D) choices, with only one correct option. True/false "
                 "questions must present both True) and False) choices. Open-ended questions are allowed, "
                 "but every question must have a matching answer key entry with the correct "
-                "answer, explanation, and source citation. The multiple-choice answer key must not use "
+                "answer, explanation, and source citation. Include exactly one Answer Key after all "
+                "questions. The answer key must be compact and must not repeat full question text or "
+                "A-D answer choices. Do not include an Answer Key Summary. The multiple-choice answer key must not use "
                 "the same letter for every question unless the source material truly forces that."
             ),
         })

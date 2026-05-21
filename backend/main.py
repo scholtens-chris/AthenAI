@@ -1,7 +1,7 @@
 import os
 import logging
 from logging.handlers import RotatingFileHandler
-from fastapi import FastAPI, UploadFile, File, Form, Request
+from fastapi import FastAPI, UploadFile, File, Form, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from typing import List, Optional
@@ -18,6 +18,19 @@ import re
 import time
 
 from qwen_utils import QwenLLM
+from mediasite_utils import (
+    MediasiteApiError,
+    MediasiteClient,
+    extract_presentation_ids,
+    extract_presentation_text,
+    flatten_odata_collection,
+    importable_caption_text,
+    importable_ocr_text,
+    importable_slide_details_text,
+    odata_next_link,
+    odata_path,
+    presentation_filename,
+)
 
 
 def configure_logging() -> logging.Logger:
@@ -56,6 +69,24 @@ FULL_ARTIFACT_CONTEXT_CHARS = int(os.getenv("ATHENAI_RAG_FULL_ARTIFACT_CONTEXT_C
 SESSION_TTL_SECONDS = int(float(os.getenv("ATHENAI_SESSION_TTL_HOURS", "12")) * 60 * 60)
 SESSION_STORE_DIR = Path(os.getenv("ATHENAI_SESSION_STORE_DIR", Path(__file__).parent / ".athenai_sessions"))
 SESSION_PERSISTENCE_ENABLED = os.getenv("ATHENAI_SESSION_PERSISTENCE", "1") != "0"
+MEDIASITE_API_KEY = os.getenv("ATHENAI_MEDIASITE_API_KEY")
+MEDIASITE_BASE_URL = os.getenv("ATHENAI_MEDIASITE_BASE_URL")
+MEDIASITE_USERNAME = os.getenv("ATHENAI_MEDIASITE_USERNAME")
+MEDIASITE_PASSWORD = os.getenv("ATHENAI_MEDIASITE_PASSWORD")
+MEDIASITE_APPLICATION_TICKET = os.getenv("ATHENAI_MEDIASITE_APPLICATION_TICKET")
+MEDIASITE_AUTHORIZATION_TICKET = os.getenv("ATHENAI_MEDIASITE_AUTHORIZATION_TICKET")
+MEDIASITE_CHANNEL_RESOURCE_TYPES = {
+    "mediasitechannel": "MediasiteChannels",
+    "mediasitechannels": "MediasiteChannels",
+    "channel": "MediasiteChannels",
+    "channels": "MediasiteChannels",
+    "catalog": "MediasiteChannels",
+    "catalogs": "MediasiteChannels",
+    "showcasechannel": "ShowcaseChannels",
+    "showcasechannels": "ShowcaseChannels",
+    "playlist": "Playlists",
+    "playlists": "Playlists",
+}
 
 STOPWORDS = {
     "a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "from", "how",
@@ -64,11 +95,14 @@ STOPWORDS = {
 }
 
 STUDY_TASK_PATTERNS = {
+    "flashcards": (
+        r"\bflashcards?\b",
+        r"\bflash\s+cards?\b",
+    ),
     "quiz": (
         r"\bquiz\b",
         r"\btest me\b",
         r"\bpractice question",
-        r"\bflashcards?\b",
     ),
     "summary": (
         r"\bsummar(?:y|ize|ise|ise)\b",
@@ -108,6 +142,9 @@ BROAD_STUDY_PROMPTS = {
     "quiz",
     "quiz me",
     "test me",
+    "flashcards",
+    "create flashcards",
+    "make flashcards",
     "explain this",
     "explain this lecture",
     "summarize",
@@ -614,6 +651,122 @@ def append_chat_message(session_id: Optional[str], message: dict) -> None:
     persist_session(session_id)
 
 
+def mediasite_client_from_payload(data: dict) -> MediasiteClient:
+    return MediasiteClient(
+        base_url=data.get("base_url") or MEDIASITE_BASE_URL or "",
+        api_key=data.get("api_key") or MEDIASITE_API_KEY or "",
+        username=data.get("username") or MEDIASITE_USERNAME,
+        password=data.get("password") or MEDIASITE_PASSWORD,
+        impersonate_username=data.get("impersonate_username"),
+        authorization_ticket=data.get("authorization_ticket") or MEDIASITE_AUTHORIZATION_TICKET,
+        application_ticket=data.get("application_ticket") or MEDIASITE_APPLICATION_TICKET,
+        timeout_seconds=int(data.get("timeout_seconds") or 20),
+    )
+
+
+def public_mediasite_config() -> dict:
+    return {
+        "configured": bool(MEDIASITE_BASE_URL and MEDIASITE_API_KEY),
+        "base_url": MEDIASITE_BASE_URL,
+        "has_api_key": bool(MEDIASITE_API_KEY),
+        "has_username": bool(MEDIASITE_USERNAME),
+        "has_password": bool(MEDIASITE_PASSWORD),
+        "has_application_ticket": bool(MEDIASITE_APPLICATION_TICKET),
+        "has_authorization_ticket": bool(MEDIASITE_AUTHORIZATION_TICKET),
+    }
+
+
+def mediasite_error_detail(exc: MediasiteApiError) -> dict:
+    message = str(exc)
+    if exc.status_code == 403 and "AuthFailureAsError" in exc.body:
+        message = (
+            "Mediasite rejected the configured credentials with 403 AuthFailureAsError. "
+            "The API key reached the Mediasite API, but it is not authorized to read this resource. "
+            "The Mediasite REST API demo sends sfapikey plus Basic username/password auth; "
+            "configure ATHENAI_MEDIASITE_USERNAME and ATHENAI_MEDIASITE_PASSWORD, or provide an "
+            "application/authorization ticket with access to the presentation."
+        )
+    elif exc.status_code == 400 and "InvalidKey" in exc.body:
+        message = (
+            "Mediasite rejected the ID as an invalid OData key. Channel imports require a real "
+            "Mediasite channel/catalog GUID, not a friendly channel URL slug such as "
+            "'mediasiteadmin-mediasiteadmin'. For one video, paste a watch/play URL or use "
+            "presentation:<presentation-guid>."
+        )
+    return {"message": message, "body": exc.body[:500]}
+
+
+def mediasite_channel_resource(resource_type: Optional[str]) -> str:
+    normalized = re.sub(r"[^a-zA-Z]", "", resource_type or "MediasiteChannels").lower()
+    resource = MEDIASITE_CHANNEL_RESOURCE_TYPES.get(normalized)
+    if not resource:
+        supported = sorted(set(MEDIASITE_CHANNEL_RESOURCE_TYPES.values()))
+        raise ValueError(f"Unsupported channel resource_type. Use one of: {', '.join(supported)}.")
+    return resource
+
+
+def fetch_mediasite_collection(client: MediasiteClient, path: str, params: Optional[dict] = None, max_pages: int = 20) -> list[dict]:
+    items: list[dict] = []
+    next_path: Optional[str] = path
+    next_params = params
+    pages = 0
+    while next_path and pages < max(1, max_pages):
+        data = client.get_json(next_path, params=next_params)
+        items.extend(item for item in flatten_odata_collection(data) if isinstance(item, dict))
+        next_path = odata_next_link(data)
+        next_params = None
+        pages += 1
+    return items
+
+
+def fetch_channel_presentation_ids(
+    client: MediasiteClient,
+    channel_id: str,
+    resource_type: Optional[str] = None,
+    max_pages: int = 20,
+) -> list[str]:
+    resource = mediasite_channel_resource(resource_type)
+    presentations = fetch_mediasite_collection(
+        client,
+        odata_path(resource, channel_id, "Presentations"),
+        params={"$select": "Id,Title,PresentationId,RootId"},
+        max_pages=max_pages,
+    )
+    ids: list[str] = []
+    seen: set[str] = set()
+    for presentation_id in extract_presentation_ids(presentations):
+        if presentation_id not in seen:
+            ids.append(presentation_id)
+            seen.add(presentation_id)
+    return ids
+
+
+def import_mediasite_presentation_text(client: MediasiteClient, session_id: str, presentation_id: str, filename: Optional[str] = None) -> dict:
+    presentation = client.get_json(odata_path("Presentations", presentation_id), params={"$select": "full"})
+    ocr_text = importable_ocr_text(client, presentation_id)
+    caption_text = importable_caption_text(client, presentation_id)
+    slide_details_text = importable_slide_details_text(client, presentation_id)
+
+    text_parts = [
+        extract_presentation_text(presentation),
+        ocr_text,
+        caption_text,
+        slide_details_text,
+    ]
+    text = re.sub(r"\s+", " ", " ".join(part for part in text_parts if part)).strip()
+    import_filename = filename or presentation_filename(presentation_id, presentation)
+    chunks_added = add_document_to_session(session_id, import_filename, text)
+    return {
+        "presentation_id": presentation_id,
+        "filename": import_filename,
+        "chunks_added": chunks_added,
+        "has_text": bool(text),
+        "has_caption_text": bool(caption_text),
+        "has_ocr_text": bool(ocr_text),
+        "has_slide_details_text": bool(slide_details_text),
+    }
+
+
 @app.get("/llm/status")
 async def llm_status():
     """Report the currently configured LLM mode and model."""
@@ -628,6 +781,12 @@ async def llm_status():
         "top_p": qwen_llm.top_p,
         "top_k": qwen_llm.top_k,
     }
+
+
+@app.get("/mediasite/status")
+async def mediasite_status():
+    """Report whether Mediasite API connection settings are available."""
+    return public_mediasite_config()
 
 
 @app.get("/session/{session_id}")
@@ -802,6 +961,202 @@ async def upload_content(session_id: Optional[str] = Form(None), files: List[Upl
         "files": [f.filename for f in files],
         "indexed_files": indexed_files,
         "skipped_files": skipped_files,
+        "added_chunk_count": added_chunk_count,
+        "chunk_count": len(sessions[session_id]["chunks"]),
+    }
+
+
+@app.post("/mediasite/import-presentation/")
+async def import_mediasite_presentation(request: Request):
+    """Fetch a Mediasite presentation's available text and index it for study."""
+    data = await request.json()
+    presentation_id = data.get("presentation_id")
+    if not presentation_id:
+        raise HTTPException(status_code=400, detail="presentation_id is required.")
+    session_id = data.get("session_id") or str(uuid.uuid4())
+    ensure_session(session_id)
+    try:
+        client = mediasite_client_from_payload(data)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    logger.info(
+        "mediasite_import_begin session_id=%s presentation_id=%s base_url=%s",
+        session_id,
+        presentation_id,
+        client.base_url,
+    )
+    try:
+        import_result = import_mediasite_presentation_text(
+            client,
+            session_id,
+            presentation_id,
+            filename=data.get("filename"),
+        )
+    except MediasiteApiError as exc:
+        logger.warning(
+            "mediasite_import_failed session_id=%s presentation_id=%s status=%s",
+            session_id,
+            presentation_id,
+            exc.status_code,
+        )
+        raise HTTPException(
+            status_code=exc.status_code or 502,
+            detail=mediasite_error_detail(exc),
+        ) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if not import_result["chunks_added"]:
+        logger.warning("mediasite_import_no_text session_id=%s presentation_id=%s", session_id, presentation_id)
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "No importable text was found for that presentation. The API returned metadata, "
+                "but no caption text, slide OCR text, or downloadable caption content."
+            ),
+        )
+
+    logger.info(
+        "mediasite_import_complete session_id=%s presentation_id=%s filename=%s chunks_added=%s total_chunks=%s",
+        session_id,
+        presentation_id,
+        import_result["filename"],
+        import_result["chunks_added"],
+        len(sessions[session_id]["chunks"]),
+    )
+    return {
+        "session_id": session_id,
+        "presentation_id": presentation_id,
+        "filename": import_result["filename"],
+        "indexed_files": [import_result["filename"]],
+        "added_chunk_count": import_result["chunks_added"],
+        "has_caption_text": import_result["has_caption_text"],
+        "has_ocr_text": import_result["has_ocr_text"],
+        "has_slide_details_text": import_result["has_slide_details_text"],
+        "chunk_count": len(sessions[session_id]["chunks"]),
+    }
+
+
+@app.post("/mediasite/channel-presentations/")
+async def list_mediasite_channel_presentations(request: Request):
+    """List presentation GUIDs from a Mediasite channel, catalog, showcase channel, or playlist."""
+    data = await request.json()
+    channel_id = data.get("channel_id") or data.get("catalog_id") or data.get("playlist_id")
+    if not channel_id:
+        raise HTTPException(status_code=400, detail="channel_id, catalog_id, or playlist_id is required.")
+    try:
+        client = mediasite_client_from_payload(data)
+        presentation_ids = fetch_channel_presentation_ids(
+            client,
+            channel_id,
+            resource_type=data.get("resource_type"),
+            max_pages=int(data.get("max_pages") or 20),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except MediasiteApiError as exc:
+        logger.warning(
+            "mediasite_channel_presentations_failed channel_id=%s status=%s",
+            channel_id,
+            exc.status_code,
+        )
+        raise HTTPException(
+            status_code=exc.status_code or 502,
+            detail=mediasite_error_detail(exc),
+        ) from exc
+
+    logger.info(
+        "mediasite_channel_presentations_complete channel_id=%s resource_type=%s count=%s",
+        channel_id,
+        data.get("resource_type") or "MediasiteChannels",
+        len(presentation_ids),
+    )
+    return {
+        "channel_id": channel_id,
+        "resource_type": mediasite_channel_resource(data.get("resource_type")),
+        "presentation_ids": presentation_ids,
+        "count": len(presentation_ids),
+    }
+
+
+@app.post("/mediasite/import-channel/")
+async def import_mediasite_channel(request: Request):
+    """Import captions and slide OCR for every presentation in a Mediasite channel/catalog."""
+    data = await request.json()
+    channel_id = data.get("channel_id") or data.get("catalog_id") or data.get("playlist_id")
+    if not channel_id:
+        raise HTTPException(status_code=400, detail="channel_id, catalog_id, or playlist_id is required.")
+    session_id = data.get("session_id") or str(uuid.uuid4())
+    ensure_session(session_id)
+    try:
+        client = mediasite_client_from_payload(data)
+        presentation_ids = data.get("presentation_ids") or fetch_channel_presentation_ids(
+            client,
+            channel_id,
+            resource_type=data.get("resource_type"),
+            max_pages=int(data.get("max_pages") or 20),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except MediasiteApiError as exc:
+        raise HTTPException(
+            status_code=exc.status_code or 502,
+            detail=mediasite_error_detail(exc),
+        ) from exc
+
+    max_presentations = int(data.get("max_presentations") or len(presentation_ids))
+    presentation_ids = presentation_ids[:max(0, max_presentations)]
+    imported = []
+    skipped = []
+    failed = []
+    added_chunk_count = 0
+
+    logger.info(
+        "mediasite_channel_import_begin session_id=%s channel_id=%s presentation_count=%s",
+        session_id,
+        channel_id,
+        len(presentation_ids),
+    )
+    for presentation_id in presentation_ids:
+        try:
+            result = import_mediasite_presentation_text(client, session_id, presentation_id)
+        except MediasiteApiError as exc:
+            failed.append({
+                "presentation_id": presentation_id,
+                "status": exc.status_code,
+                "message": str(exc),
+            })
+            continue
+        except ValueError as exc:
+            failed.append({"presentation_id": presentation_id, "message": str(exc)})
+            continue
+
+        if result["chunks_added"]:
+            imported.append(result)
+            added_chunk_count += result["chunks_added"]
+        else:
+            skipped.append(result)
+
+    logger.info(
+        "mediasite_channel_import_complete session_id=%s channel_id=%s imported=%s skipped=%s failed=%s added_chunks=%s total_chunks=%s",
+        session_id,
+        channel_id,
+        len(imported),
+        len(skipped),
+        len(failed),
+        added_chunk_count,
+        len(sessions[session_id]["chunks"]),
+    )
+    return {
+        "session_id": session_id,
+        "channel_id": channel_id,
+        "resource_type": mediasite_channel_resource(data.get("resource_type")),
+        "presentation_ids": presentation_ids,
+        "imported": imported,
+        "skipped": skipped,
+        "failed": failed,
+        "indexed_files": [item["filename"] for item in imported],
         "added_chunk_count": added_chunk_count,
         "chunk_count": len(sessions[session_id]["chunks"]),
     }

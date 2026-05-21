@@ -4,7 +4,7 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-li
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom/vitest";
 
-import App from "./App.jsx";
+import App, { detectMediasiteContext, detectMediasiteContextFromUrl } from "./App.jsx";
 
 
 function jsonResponse(body, ok = true) {
@@ -18,6 +18,8 @@ function jsonResponse(body, ok = true) {
 describe("AthenAI app", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.history.pushState({}, "", "/");
+    Object.defineProperty(document, "referrer", { value: "", configurable: true });
     vi.spyOn(window, "fetch");
   });
 
@@ -32,9 +34,27 @@ describe("AthenAI app", () => {
     render(<App />);
 
     expect(screen.getByRole("heading", { name: /AthenAI/i })).toBeInTheDocument();
+    expect(screen.getByText("Beta")).toBeInTheDocument();
     expect(screen.getByText(/intelligent learning companion/i)).toBeInTheDocument();
     expect(screen.getByText('"Quiz me"')).toBeInTheDocument();
+    expect(screen.getByText('"Create flashcards"')).toBeInTheDocument();
+    expect(screen.getByText('"Make me a study guide"')).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /send/i })).toBeDisabled();
+  });
+
+  it("shows and dismisses the beta safety notice", async () => {
+    const user = userEvent.setup();
+
+    render(<App />);
+
+    expect(screen.getByRole("note", { name: /AthenAI beta notice/i })).toHaveTextContent(
+      /AthenAI can make mistakes or produce incomplete results\. Review all outputs before use\./i,
+    );
+
+    await user.click(screen.getByRole("button", { name: /dismiss/i }));
+
+    expect(screen.queryByRole("note", { name: /AthenAI beta notice/i })).not.toBeInTheDocument();
+    expect(window.localStorage.getItem("athenai.safetyNotice.dismissed.v1")).toBe("true");
   });
 
   it("uploads selected files and reports indexed and skipped files", async () => {
@@ -135,7 +155,7 @@ describe("AthenAI app", () => {
         chatHistory: [
           {
             sender: "ai",
-            text: "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your channel of videos like:",
+            text: "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your video presentation or your channel of videos like:",
             examples: ["Quiz me"],
           },
         ],
@@ -160,6 +180,30 @@ describe("AthenAI app", () => {
     expect(window.fetch).toHaveBeenCalledWith("http://127.0.0.1:8001/session/session-1");
   });
 
+  it("updates stale starter copy from browser session state", () => {
+    window.localStorage.setItem(
+      "athenai.session.v1",
+      JSON.stringify({
+        sessionId: "session-1",
+        chatHistory: [
+          {
+            sender: "ai",
+            text: "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your channel of videos like:",
+            examples: ["Quiz me"],
+          },
+          { sender: "user", text: "Keep my previous question" },
+        ],
+        expiresAt: Date.now() + 60_000,
+      }),
+    );
+
+    render(<App />);
+
+    expect(screen.getByText(/video presentation or your channel of videos like:/i)).toBeInTheDocument();
+    expect(screen.queryByText(/Ask questions about your channel of videos like:/i)).not.toBeInTheDocument();
+    expect(screen.getByText("Keep my previous question")).toBeInTheDocument();
+  });
+
   it("drops expired browser session state", () => {
     window.localStorage.setItem(
       "athenai.session.v1",
@@ -172,6 +216,190 @@ describe("AthenAI app", () => {
     expect(window.fetch).not.toHaveBeenCalled();
   });
 
+  it("detects Mediasite context from presentation and channel URLs", () => {
+    expect(
+      detectMediasiteContextFromUrl(
+        "https://preview.sofodev.com/mediasite/play/31e188dbc9414c5cbd486b5a0fa7b0331d",
+      ),
+    ).toEqual({
+      type: "presentation",
+      id: "31e188dbc9414c5cbd486b5a0fa7b0331d",
+      source: "play-url",
+    });
+
+    expect(
+      detectMediasiteContextFromUrl(
+        "https://preview.sofodev.com/mediasite/Channel/61d2ef6f70194d3183aa7fa07c2e809f5f",
+      ),
+    ).toEqual({
+      type: "channel",
+      id: "61d2ef6f70194d3183aa7fa07c2e809f5f",
+      source: "channel-url",
+    });
+
+    expect(detectMediasiteContextFromUrl("https://preview.sofodev.com/mediasite/Channel/wardiere")).toBeNull();
+
+    expect(
+      detectMediasiteContextFromUrl(
+        "https://preview.sofodev.com/mediasite/Channel/61d2ef6f70194d3183aa7fa07c2e809f5f/watch/31e188dbc9414c5cbd486b5a0fa7b0331d?sortBy=most-recent",
+      ),
+    ).toEqual({
+      type: "presentation",
+      id: "31e188dbc9414c5cbd486b5a0fa7b0331d",
+      channelId: "61d2ef6f70194d3183aa7fa07c2e809f5f",
+      source: "channel-watch-url",
+    });
+
+    expect(
+      detectMediasiteContextFromUrl(
+        "https://preview.sofodev.com/mediasite/Channel/wardiere/watch/31e188dbc9414c5cbd486b5a0fa7b0331d",
+      ),
+    ).toEqual({
+      type: "presentation",
+      id: "31e188dbc9414c5cbd486b5a0fa7b0331d",
+      channelId: "wardiere",
+      source: "channel-watch-url",
+    });
+
+    expect(
+      detectMediasiteContextFromUrl(
+        "https://example.edu/AthenAI?presentationId=11111111-2222-3333-4444-555555555555",
+      ),
+    ).toEqual({
+      type: "presentation",
+      id: "11111111-2222-3333-4444-555555555555",
+      source: "query",
+    });
+
+    expect(
+      detectMediasiteContextFromUrl(
+        "https://athenai.local/?embed=1&source_url=https%3A%2F%2Fpreview.sofodev.com%2Fmediasite%2FChannel%2F61d2ef6f70194d3183aa7fa07c2e809f5f",
+      ),
+    ).toEqual({
+      type: "channel",
+      id: "61d2ef6f70194d3183aa7fa07c2e809f5f",
+      source: "source_url-query",
+    });
+  });
+
+  it("detects Mediasite context from an embedding page referrer", () => {
+    Object.defineProperty(document, "referrer", {
+      value:
+        "https://preview.sofodev.com/mediasite/Channel/61d2ef6f70194d3183aa7fa07c2e809f5f/watch/31e188dbc9414c5cbd486b5a0fa7b0331d",
+      configurable: true,
+    });
+
+    expect(detectMediasiteContext()).toEqual({
+      type: "presentation",
+      id: "31e188dbc9414c5cbd486b5a0fa7b0331d",
+      channelId: "61d2ef6f70194d3183aa7fa07c2e809f5f",
+      source: "channel-watch-url",
+    });
+  });
+
+  it("auto-imports a Mediasite presentation from the embedding page URL", async () => {
+    const presentationId = "31e188dbc9414c5cbd486b5a0fa7b0331d";
+    Object.defineProperty(document, "referrer", {
+      value: `https://preview.sofodev.com/mediasite/play/${presentationId}`,
+      configurable: true,
+    });
+    window.fetch.mockResolvedValueOnce(
+      jsonResponse({
+        session_id: "session-player",
+        indexed_files: [{ filename: "presentation.txt" }],
+        added_chunk_count: 3,
+      }),
+    );
+
+    render(<App />);
+
+    await screen.findByText(/Mediasite presentation loaded/i);
+    expect(window.fetch).toHaveBeenCalledWith("http://127.0.0.1:8001/mediasite/import-presentation/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: null,
+        presentation_id: presentationId,
+      }),
+      signal: expect.any(AbortSignal),
+    });
+    expect(
+      JSON.parse(window.localStorage.getItem(`athenai.session.v1.presentation.${presentationId}`)).sessionId,
+    ).toBe("session-player");
+  });
+
+  it("auto-imports a Mediasite channel from the page URL", async () => {
+    const channelId = "abcdefabcdefabcdefabcdefabcdefab";
+    window.history.pushState({}, "", `/Mediasite/Channel/${channelId}`);
+    window.fetch.mockResolvedValueOnce(
+      jsonResponse({
+        session_id: "session-channel",
+        imported: [{ presentation_id: "p1" }, { presentation_id: "p2" }],
+        added_chunk_count: 5,
+      }),
+    );
+
+    render(<App />);
+
+    await screen.findByText(/2 Mediasite videos loaded/i);
+    expect(window.fetch).toHaveBeenCalledWith("http://127.0.0.1:8001/mediasite/import-channel/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: null,
+        channel_id: channelId,
+        resource_type: "MediasiteChannels",
+      }),
+      signal: expect.any(AbortSignal),
+    });
+    expect(JSON.parse(window.localStorage.getItem(`athenai.session.v1.channel.${channelId}`)).sessionId).toBe(
+      "session-channel",
+    );
+  });
+
+  it("manually imports a debug channel ID from the header button", async () => {
+    const user = userEvent.setup();
+    const channelId = "abcdefabcdefabcdefabcdefabcdefab";
+    vi.spyOn(window, "prompt").mockReturnValue(channelId);
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    window.fetch.mockResolvedValueOnce(
+      jsonResponse({
+        session_id: "session-debug",
+        imported: [{ presentation_id: "p1" }],
+        added_chunk_count: 4,
+      }),
+    );
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /DEBUG: CHANNEL\/PRESENTATION ID/i }));
+
+    await screen.findByText(/1 Mediasite video loaded/i);
+    expect(window.confirm).toHaveBeenCalledWith("Import this ID as a channel? Cancel imports it as a presentation.");
+    expect(window.fetch).toHaveBeenCalledWith("http://127.0.0.1:8001/mediasite/import-channel/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: null,
+        channel_id: channelId,
+        resource_type: "MediasiteChannels",
+      }),
+      signal: undefined,
+    });
+  });
+
+  it("shows backend detail when a debug import fails", async () => {
+    const user = userEvent.setup();
+    vi.spyOn(window, "prompt").mockReturnValue("presentation:abcdefabcdefabcdefabcdefabcdefab");
+    window.fetch.mockResolvedValueOnce(jsonResponse({ detail: "Mediasite base URL is required." }, false));
+
+    render(<App />);
+
+    await user.click(screen.getByRole("button", { name: /DEBUG: CHANNEL\/PRESENTATION ID/i }));
+
+    await screen.findByText(/Debug import failed: Mediasite base URL is required/i);
+  });
+
   it("clears a persisted chat only after confirmation", async () => {
     const user = userEvent.setup();
     vi.spyOn(window, "confirm").mockReturnValue(true);
@@ -182,7 +410,7 @@ describe("AthenAI app", () => {
         chatHistory: [
           {
             sender: "ai",
-            text: "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your channel of videos like:",
+            text: "AthenAI is your intelligent learning companion for studying, comprehension, and academic success. Ask questions about your video presentation or your channel of videos like:",
             examples: ["Quiz me"],
           },
           { sender: "user", text: "Keep this until I clear it" },
