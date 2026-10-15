@@ -550,6 +550,9 @@ def authorize_session(request: Request, session_id: Optional[str], create: bool 
             logger.warning("session_access_denied path=%s", redact_path(request.url.path))
             raise HTTPException(status_code=403, detail="This session is not available. Start a new session.")
         return session_id, None
+    if not create:
+        # Tool endpoints don't return a token, so they never claim an unowned session (which would lock it).
+        return session_id, None
     token = new_session_token()
     session["owner_token_hash"] = hash_session_token(token)
     if session.get("content") or session.get("chat_history"):

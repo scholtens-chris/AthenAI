@@ -296,6 +296,11 @@ DISTRESS_REGEX = re.compile(
 SELF_HARM_TOPIC_REGEX = re.compile(
     r"\b(?:suicid\w*|self[- ]harm\w*|self[- ]injur\w*|cutting|overdos\w*|eating disorders?|anorexi\w*|bulimi\w*)\b"
 )
+CHALLENGE_REGEX = re.compile(
+    r"\b(?:you(?:'re| are) (?:wrong|mistaken|incorrect)|that(?:'s| is) (?:wrong|not right|incorrect|not true)|"
+    r"(?:not|isn't) (?:right|correct)|fix (?:your|the|that) answer|you got (?:it|that|this) wrong|are you sure|"
+    r"i think you(?:'re| are| made)|that's not what)\b"
+)
 TRAUMA_REGEX = re.compile(
     r"\b(?:abused|abusing me|assaulted|raped|molested|harass(?:ed|ing|ment)|bull(?:ied|ying)|stalk(?:ed|ing)|"
     r"threatened|groomed|trauma\w*|ptsd|domestic violence)\b"
@@ -420,6 +425,12 @@ GUIDANCE = {
         "The topic involves suicide, self-harm, or eating disorders. Discuss it factually and safely, with no "
         "method details, lethality comparisons, or instructions, and mention support if the student may be "
         "personally affected."
+    ),
+    "challenge": (
+        "The student disputes your earlier answer. Before replying, compare that answer with the excerpts. Only if "
+        "the excerpts contradict it, admit the error and correct it. If the excerpts support it, do not apologize, "
+        "do not say you made an error, and do not say the student is right: state that the earlier answer stands "
+        "and quote the supporting evidence, kindly."
     ),
     "trauma": (
         "The student may be describing abuse, harassment, or trauma. Be supportive and non-judgmental, and offer "
@@ -556,6 +567,7 @@ def assess_prompt(text: str) -> ModerationDecision:
         ("self_harm_topic", SELF_HARM_TOPIC_REGEX),
         ("distress", DISTRESS_REGEX),
         ("trauma", TRAUMA_REGEX),
+        ("challenge", CHALLENGE_REGEX),
         ("medical", MEDICAL_REGEX),
         ("legal", LEGAL_REGEX),
         ("financial", FINANCIAL_REGEX),

@@ -438,6 +438,11 @@ def test_session_owner_token_is_required_for_every_session_endpoint(monkeypatch)
     assert client.post("/session/../session", json={}).status_code in {404, 405}
     assert client.post("/chat/", json={"session_id": "bad id!", "prompt": "hi"}).status_code == 400
 
+    # Tool endpoints never claim an unowned session, so they cannot lock its owner out.
+    client.post("/summarize/", json={"session_id": "fresh-session"})
+    assert "owner_token_hash" not in main.sessions["fresh-session"]
+    assert "session_token" in client.get("/session/fresh-session").json()
+
     assert client.delete(f"/session/{session_id}", headers=owner).json() == {"deleted": True}
     assert session_id not in main.sessions
     assert not (main.SESSION_STORE_DIR / f"{session_id}.json").exists()

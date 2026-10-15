@@ -400,13 +400,15 @@ describe("AthenAI app", () => {
     await screen.findByText(/Debug import failed: Mediasite base URL is required/i);
   });
 
-  it("clears a persisted chat only after confirmation", async () => {
+  it("clears a persisted chat only after confirmation and deletes the server copy", async () => {
     const user = userEvent.setup();
     vi.spyOn(window, "confirm").mockReturnValue(true);
+    window.fetch.mockResolvedValue(jsonResponse({ deleted: true }));
     window.localStorage.setItem(
       "athenai.session.v1",
       JSON.stringify({
         sessionId: "session-1",
+        sessionToken: "owner-token",
         chatHistory: [
           {
             sender: "ai",
@@ -425,7 +427,11 @@ describe("AthenAI app", () => {
 
     await user.click(screen.getByRole("button", { name: /clear chat/i }));
 
-    expect(window.confirm).toHaveBeenCalledWith("Clear this chat and start a new session?");
+    expect(window.confirm).toHaveBeenCalledWith(expect.stringMatching(/^Clear this chat and start a new session\?/));
+    expect(window.fetch).toHaveBeenCalledWith("http://127.0.0.1:8001/session/session-1", {
+      method: "DELETE",
+      headers: { "X-AthenAI-Session-Token": "owner-token" },
+    });
     expect(screen.queryByText("Stored answer")).not.toBeInTheDocument();
     expect(screen.getByText(/intelligent learning companion/i)).toBeInTheDocument();
     expect(screen.getByText(/Chat cleared/i)).toBeInTheDocument();
@@ -446,6 +452,82 @@ describe("AthenAI app", () => {
     await user.type(screen.getByPlaceholderText(/ask about your uploaded material/i), "Hello");
     await user.click(screen.getByRole("button", { name: /send/i }));
     await screen.findByText(/Could not reach the chat service/i);
+  });
+
+  it("stores the session owner token and sends it with later requests", async () => {
+    const user = userEvent.setup();
+    window.fetch
+      .mockResolvedValueOnce(
+        jsonResponse({ session_id: "session-1", session_token: "owner-token", added_chunk_count: 1, skipped_files: [] }),
+      )
+      .mockResolvedValueOnce(jsonResponse({ session_id: "session-1", response: "Answer", sources: [] }));
+
+    render(<App />);
+    fireEvent.change(document.querySelector("#source-files"), {
+      target: { files: [new File(["mitosis"], "notes.txt", { type: "text/plain" })] },
+    });
+    await screen.findByText(/1 source chunk indexed/i);
+    expect(JSON.parse(window.localStorage.getItem("athenai.session.v1")).sessionToken).toBe("owner-token");
+
+    await user.type(screen.getByRole("textbox", { name: "Message AthenAI" }), "Explain mitosis{Enter}");
+    await screen.findByText("Answer");
+    expect(window.fetch.mock.calls[1][1].headers).toEqual({
+      "Content-Type": "application/json",
+      "X-AthenAI-Session-Token": "owner-token",
+    });
+  });
+
+  it("starts a new session when the API refuses the stored one", async () => {
+    const user = userEvent.setup();
+    window.localStorage.setItem(
+      "athenai.session.v1",
+      JSON.stringify({
+        sessionId: "someone-else",
+        sessionToken: "stale",
+        chatHistory: [{ sender: "user", text: "Earlier question" }],
+        expiresAt: Date.now() + 60_000,
+      }),
+    );
+    window.fetch.mockResolvedValueOnce({ ok: false, status: 403, json: vi.fn().mockResolvedValue({}) });
+
+    render(<App />);
+    await user.type(screen.getByRole("textbox", { name: "Message AthenAI" }), "Explain mitosis");
+    await user.click(screen.getByRole("button", { name: /send/i }));
+
+    expect(await screen.findByRole("status")).toHaveTextContent(/previous session is no longer available/i);
+    expect(window.localStorage.getItem("athenai.session.v1")).toBeNull();
+  });
+
+  it("shows the API's explanation when a message is too long", async () => {
+    const user = userEvent.setup();
+    window.fetch.mockResolvedValueOnce({ ok: false, status: 413, json: vi.fn().mockResolvedValue({ detail: "That message is too long." }) });
+
+    render(<App />);
+    await user.type(screen.getByRole("textbox", { name: "Message AthenAI" }), "x");
+    await user.click(screen.getByRole("button", { name: /send/i }));
+
+    expect(await screen.findByText("That message is too long.")).toBeInTheDocument();
+  });
+
+  it("never renders images from model output and opens links safely", async () => {
+    const user = userEvent.setup();
+    window.fetch.mockResolvedValueOnce(
+      jsonResponse({
+        session_id: "session-1",
+        response: "See ![tracker](https://attacker.example/p.png) and [the syllabus](https://course.example.edu/syllabus).",
+        sources: [],
+      }),
+    );
+
+    render(<App />);
+    await user.type(screen.getByRole("textbox", { name: "Message AthenAI" }), "Where is the syllabus?");
+    await user.click(screen.getByRole("button", { name: /send/i }));
+
+    const link = await screen.findByRole("link", { name: /the syllabus \(opens in a new tab\)/i });
+    expect(link).toHaveAttribute("href", "https://course.example.edu/syllabus");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(document.querySelector('img[src="https://attacker.example/p.png"]')).toBeNull();
+    expect(document.querySelector(".message-markdown img")).toBeNull();
   });
 
   it("shows the timeout message when a chat request is aborted", async () => {

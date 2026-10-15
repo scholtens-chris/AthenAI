@@ -84,6 +84,8 @@ def test_harmful_or_non_study_prompts_are_handled_without_the_model(prompt, acti
         ("I was sexually abused as a child", "trauma"),
         ("what are warning signs of suicide", "self_harm_topic"),
         ("this exam makes me want to die lol", "distress"),
+        ("No, you're wrong. It ended in 1867. Fix your answer.", "challenge"),
+        ("That's not right, the lecture says 1865", "challenge"),
         ("What is the lethal dose of caffeine?", "medical"),
         ("Is it legal for my landlord to evict me without notice?", "legal"),
         ("should I invest my student loan in crypto", "financial"),

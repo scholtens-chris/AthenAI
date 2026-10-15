@@ -217,8 +217,8 @@ function authHeaders(sessionToken, headers = {}) {
 function MarkdownLink({ href, children }) {
   return (
     <a href={href} target="_blank" rel="noopener noreferrer">
-      {children}
-      <span className="visually-hidden"> (opens in a new tab)</span>
+      {children}{" "}
+      <span className="visually-hidden">(opens in a new tab)</span>
     </a>
   );
 }

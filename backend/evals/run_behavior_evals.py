@@ -26,6 +26,10 @@ def main() -> int:
     parser.add_argument("--cases", default="", help="comma-separated case ids to run")
     parser.add_argument("--report-dir", default=str(Path(__file__).with_name("reports")))
     args = parser.parse_args()
+    # Windows consoles default to cp1252; model output and check patterns may contain any Unicode.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
 
     if args.live:
         os.environ["ATHENAI_MOCK_LLM"] = "0"
