@@ -7,6 +7,10 @@ import athenaiAvatarSvg from "./assets/athenai-avatar.svg?raw";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8001";
 const SESSION_STORAGE_KEY = "athenai.session.v1";
 const SAFETY_NOTICE_STORAGE_KEY = "athenai.safetyNotice.dismissed.v1";
+// The API issues a per-session owner token; every later request for that session must send it back.
+const SESSION_TOKEN_HEADER = "X-AthenAI-Session-Token";
+const SESSION_UNAVAILABLE_TEXT =
+  "Your previous session is no longer available, so a new one has started. Please send your question again, and re-upload files if needed.";
 const SESSION_TTL_MS = Number(import.meta.env.VITE_SESSION_TTL_HOURS || 12) * 60 * 60 * 1000;
 const MEDIASITE_ID_PATTERN = "[0-9a-f]{32,34}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const MEDIASITE_CHANNEL_SEGMENT_PATTERN = "[A-Za-z0-9._~-]+";
@@ -205,6 +209,22 @@ function loadStoredSession(storageKey = SESSION_STORAGE_KEY) {
   }
 }
 
+function authHeaders(sessionToken, headers = {}) {
+  return sessionToken ? { ...headers, [SESSION_TOKEN_HEADER]: sessionToken } : headers;
+}
+
+// Model output never renders images (a common data-exfiltration trick); links open safely in a new tab.
+function MarkdownLink({ href, children }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+      <span className="visually-hidden"> (opens in a new tab)</span>
+    </a>
+  );
+}
+
+const MARKDOWN_COMPONENTS = { a: MarkdownLink };
+
 function isStarterOnly(history) {
   return history.length === starterMessages.length && isStarterMessage(history[0]);
 }
@@ -269,6 +289,7 @@ function App() {
   );
   const [input, setInput] = useState("");
   const [sessionId, setSessionId] = useState(storedSession.current?.sessionId || null);
+  const [sessionToken, setSessionToken] = useState(storedSession.current?.sessionToken || null);
   const [files, setFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [debugImporting, setDebugImporting] = useState(false);
@@ -285,12 +306,27 @@ function App() {
       storageKey.current,
       JSON.stringify({
         sessionId,
+        sessionToken,
         chatHistory,
         mediasiteContext: mediasiteContext.current,
         expiresAt: Date.now() + SESSION_TTL_MS,
       }),
     );
-  }, [chatHistory, sessionId]);
+  }, [chatHistory, sessionId, sessionToken]);
+
+  const rememberSession = (data) => {
+    if (data.session_id) setSessionId(data.session_id);
+    if (data.session_token) setSessionToken(data.session_token);
+  };
+
+  // The API refused this session (expired, or owned by another browser): start over cleanly.
+  const resetUnavailableSession = () => {
+    window.localStorage.removeItem(storageKey.current);
+    shouldRestoreSession.current = false;
+    setSessionId(null);
+    setSessionToken(null);
+    setStatus(SESSION_UNAVAILABLE_TEXT);
+  };
 
   const importMediasiteContext = async (context, { manual = false, signal } = {}) => {
     const endpoint = context.type === "channel" ? "import-channel" : "import-presentation";
@@ -308,15 +344,19 @@ function App() {
     try {
       const res = await fetch(`${API_BASE_URL}/mediasite/${endpoint}/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(sessionToken, { "Content-Type": "application/json" }),
         body: JSON.stringify(body),
         signal,
       });
 
+      if (res.status === 403) {
+        resetUnavailableSession();
+        return;
+      }
       if (!res.ok) throw new Error(await apiErrorMessage(res, "Mediasite import failed"));
 
       const data = await res.json();
-      if (data.session_id) setSessionId(data.session_id);
+      rememberSession(data);
       const importedCount = data.imported?.length;
       const indexedCount = importedCount ?? data.indexed_files?.length ?? 0;
       const chunks = data.added_chunk_count ?? data.chunk_count ?? 0;
@@ -352,10 +392,16 @@ function App() {
     shouldRestoreSession.current = false;
 
     let cancelled = false;
-    fetch(`${API_BASE_URL}/session/${encodeURIComponent(sessionId)}`)
-      .then((res) => (res.ok ? res.json() : null))
+    const sessionUrl = `${API_BASE_URL}/session/${encodeURIComponent(sessionId)}`;
+    (sessionToken ? fetch(sessionUrl, { headers: authHeaders(sessionToken) }) : fetch(sessionUrl))
+      .then((res) => {
+        if (res.status === 403 && !cancelled) resetUnavailableSession();
+        return res.ok ? res.json() : null;
+      })
       .then((data) => {
-        if (cancelled || !data?.chat_history?.length) return;
+        if (cancelled || !data) return;
+        if (data.session_token) setSessionToken(data.session_token);
+        if (!data.chat_history?.length) return;
         setChatHistory([starterMessages[0], ...data.chat_history]);
         setStatus(
           data.documents?.length
@@ -372,7 +418,8 @@ function App() {
     };
   }, [chatHistory, sessionId]);
 
-  const handleSend = async () => {
+  const handleSend = async (event) => {
+    event?.preventDefault();
     const prompt = input.trim();
     if (!prompt || sending) return;
 
@@ -387,15 +434,23 @@ function App() {
     try {
       const res = await fetch(`${API_BASE_URL}/chat/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders(sessionToken, { "Content-Type": "application/json" }),
         body: JSON.stringify({ prompt, session_id: sessionId }),
         signal: controller.signal,
       });
 
+      if (res.status === 403) {
+        resetUnavailableSession();
+        return;
+      }
+      if (res.status === 400 || res.status === 413) {
+        setStatus(await apiErrorMessage(res, "That message couldn't be sent."));
+        return;
+      }
       if (!res.ok) throw new Error("Chat request failed");
 
       const data = await res.json();
-      if (data.session_id) setSessionId(data.session_id);
+      rememberSession(data);
       setChatHistory((history) => {
         const nextHistory = [...history];
         const usage = data.usage;
@@ -466,18 +521,23 @@ function App() {
       const res = await fetch(`${API_BASE_URL}/upload/`, {
         method: "POST",
         body: formData,
+        ...(sessionToken ? { headers: authHeaders(sessionToken) } : {}),
       });
 
+      if (res.status === 403) {
+        resetUnavailableSession();
+        return;
+      }
       if (!res.ok) throw new Error("Upload failed");
 
       const data = await res.json();
-      setSessionId(data.session_id);
+      rememberSession(data);
       setFiles([]);
       const addedChunks = data.added_chunk_count ?? data.chunk_count ?? 0;
       const skippedCount = data.skipped_files?.length || 0;
       const chunkLabel = addedChunks === 1 ? "source chunk" : "source chunks";
       const skippedLabel = skippedCount
-        ? ` ${skippedCount} file${skippedCount === 1 ? " was" : "s were"} skipped because no readable text was found.`
+        ? ` ${skippedCount} file${skippedCount === 1 ? " was" : "s were"} skipped because no readable text was found or the file was too large.`
         : "";
       setStatus(`${addedChunks} ${chunkLabel} indexed for retrieval.${skippedLabel}`);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -528,13 +588,23 @@ function App() {
 
   const handleClearChat = () => {
     if (sending) return;
-    const confirmed = window.confirm("Clear this chat and start a new session?");
+    const confirmed = window.confirm(
+      "Clear this chat and start a new session? Your uploaded files and chat history will also be deleted from the server.",
+    );
     if (!confirmed) return;
 
+    if (sessionId) {
+      // Erase the server copy now rather than waiting for the session to expire.
+      fetch(`${API_BASE_URL}/session/${encodeURIComponent(sessionId)}`, {
+        method: "DELETE",
+        headers: authHeaders(sessionToken),
+      }).catch((error) => logClientError("delete session failed", error));
+    }
     window.localStorage.removeItem(storageKey.current);
     shouldRestoreSession.current = false;
     setChatHistory(starterMessages);
     setSessionId(null);
+    setSessionToken(null);
     setStatus("Chat cleared. Start a new conversation when you are ready.");
     setInput("");
     setFiles([]);
@@ -650,14 +720,16 @@ function App() {
             </div>
           )}
 
-          <div className="message-list" aria-live="polite">
+          <div className="message-list" role="log" aria-live="polite" aria-label="Conversation">
             {chatHistory.map((msg, index) => (index === 0 && chatHistory.length > 1 && isStarterMessage(msg)) ? null : (
               <article key={`${msg.sender}-${index}`} className={`message-row ${msg.sender}`}>
                 <ChatAvatar sender={msg.sender} />
                 <div className="message-bubble">
                   <span className="message-name">{msg.sender === "user" ? "You" : "AthenAI"}</span>
                   <div className="message-markdown">
-                    <ReactMarkdown>{msg.text}</ReactMarkdown>
+                    <ReactMarkdown disallowedElements={["img"]} unwrapDisallowed components={MARKDOWN_COMPONENTS}>
+                      {msg.text}
+                    </ReactMarkdown>
                   </div>
                   <TokenUsage usage={msg.tokenUsage} />
                   {msg.examples?.length > 0 && (
@@ -668,7 +740,7 @@ function App() {
                     </ul>
                   )}
                   {msg.sources?.length > 0 && (
-                    <div className="source-list" aria-label="Retrieved sources">
+                    <div className="source-list" role="group" aria-label="Retrieved sources">
                       {msg.sources.map((source, sourceIndex) => (
                         <details key={source.id || `${source.filename}-${sourceIndex}`}>
                           <summary>{source.label || source.title || source.filename}</summary>
@@ -681,9 +753,9 @@ function App() {
               </article>
             ))}
             {sending && (
-              <article className="message-row ai">
+              <article className="message-row ai is-thinking">
                 <ChatAvatar sender="ai" thinking />
-                <div className="message-bubble typing" aria-label="Thinking">
+                <div className="message-bubble typing" role="status" aria-label="Thinking">
                   Thinking
                   <span className="typing-dots" aria-hidden="true">
                     <span>.</span>
@@ -695,23 +767,23 @@ function App() {
             )}
           </div>
 
-          {status && <div className="chat-status">{status}</div>}
+          <div className="chat-status" role="status" hidden={!status}>
+            {status}
+          </div>
 
-          <footer className="composer">
+          <form className="composer" onSubmit={handleSend}>
             <input
               type="text"
               className="form-control"
+              aria-label="Message AthenAI"
               placeholder="Ask about your uploaded material..."
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") handleSend();
-              }}
             />
-            <button className="btn btn-phoenix-send" onClick={handleSend} disabled={!input.trim() || sending}>
+            <button type="submit" className="btn btn-phoenix-send" disabled={!input.trim() || sending}>
               {sending ? "Sending" : "Send"}
             </button>
-          </footer>
+          </form>
         </section>
       </section>
     </main>

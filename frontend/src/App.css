@@ -350,8 +350,9 @@ body {
 }
 
 .message-row {
+  --avatar-size: 97px;
   display: grid;
-  grid-template-columns: 42px minmax(0, 1fr);
+  grid-template-columns: var(--avatar-size) minmax(0, 1fr);
   gap: 12px;
   align-items: start;
   max-width: 760px;
@@ -359,7 +360,7 @@ body {
 
 .message-row.user {
   align-self: end;
-  grid-template-columns: minmax(0, 1fr) 42px;
+  grid-template-columns: minmax(0, 1fr) var(--avatar-size);
 }
 
 .message-row.user .avatar {
@@ -382,8 +383,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: var(--avatar-size, 42px);
+  height: var(--avatar-size, 42px);
   border-radius: 50%;
   overflow: hidden;
   color: var(--phoenix-primary);
@@ -418,8 +419,8 @@ body {
   position: relative;
   display: grid;
   place-items: center;
-  width: calc(100% - 14px);
-  height: calc(100% - 14px);
+  width: 64%;
+  height: 64%;
   max-width: 100%;
   max-height: 100%;
 }
@@ -454,8 +455,22 @@ body {
   transform-origin: center;
 }
 
+@property --athenai-pulse {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+.message-row.is-thinking {
+  animation: athenaiPulseDriver 1.9s ease-in-out infinite;
+}
+
 .avatar-ai.is-thinking {
-  animation: athenaiAvatarPulse 1.9s ease-in-out infinite;
+  box-shadow:
+    0 calc(6px + 3px * var(--athenai-pulse)) calc(14px + 4px * var(--athenai-pulse))
+      rgba(6, 44, 41, calc(0.18 + 0.04 * var(--athenai-pulse))),
+    0 0 0 calc(7px * var(--athenai-pulse))
+      rgba(242, 180, 61, calc(0.42 - 0.3 * var(--athenai-pulse)));
 }
 
 .avatar-ai.is-thinking .avatar-ai-art {
@@ -477,18 +492,14 @@ body {
   transform-origin: center;
 }
 
-@keyframes athenaiAvatarPulse {
+@keyframes athenaiPulseDriver {
   0%,
   100% {
-    box-shadow:
-      0 6px 14px rgba(6, 44, 41, 0.18),
-      0 0 0 0 rgba(242, 180, 61, 0.42);
+    --athenai-pulse: 0;
   }
 
   50% {
-    box-shadow:
-      0 9px 18px rgba(6, 44, 41, 0.22),
-      0 0 0 5px rgba(242, 180, 61, 0.1);
+    --athenai-pulse: 1;
   }
 }
 
@@ -512,7 +523,7 @@ body {
   }
 
   50% {
-    transform: translateY(-2px);
+    transform: translateY(-5px);
   }
 }
 
@@ -793,6 +804,10 @@ body {
 
   .message-list {
     padding: 16px;
+  }
+
+  .message-row {
+    --avatar-size: 77px;
   }
 }
 

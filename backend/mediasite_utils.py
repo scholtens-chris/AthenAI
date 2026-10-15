@@ -60,6 +60,10 @@ class MediasiteClient:
 
     def resource_url(self, path: str, params: Optional[dict[str, Any]] = None) -> str:
         if path.startswith("http://") or path.startswith("https://"):
+            # Absolute URLs come from API responses (paging links). Requests carry the API key and credentials,
+            # so never follow one to a different origin.
+            if urllib.parse.urlsplit(path)[:2] != urllib.parse.urlsplit(self.api_root)[:2]:
+                raise MediasiteApiError(f"Refusing to follow a Mediasite link to a different host: {urllib.parse.urlsplit(path).netloc}")
             url = path
         else:
             url = f"{self.api_root}/{path.lstrip('/')}"
