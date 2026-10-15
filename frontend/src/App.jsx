@@ -224,9 +224,9 @@ function TokenUsage({ usage }) {
 
   return (
     <div className="token-usage">
-      {usage.label}: {usage.tokens.toLocaleString()} tokens
-      {usage.total ? ` • Total: ${usage.total.toLocaleString()}` : ""}
-      {usage.maxNewTokens ? ` • Limit: ${usage.maxNewTokens.toLocaleString()}` : ""}
+      {usage.label}: {usage.tokens.toLocaleString()}
+      {usage.maxNewTokens ? ` of ${usage.maxNewTokens.toLocaleString()} max` : ""} tokens
+      {usage.total ? ` • Total with request: ${usage.total.toLocaleString()}` : ""}
       {usage.retriedForQuality ? " • repaired format" : ""}
       {usage.hitTokenLimit ? " • hit output limit" : ""}
       {usage.estimated ? " • estimated" : ""}
@@ -651,7 +651,7 @@ function App() {
           )}
 
           <div className="message-list" aria-live="polite">
-            {chatHistory.map((msg, index) => (
+            {chatHistory.map((msg, index) => (index === 0 && chatHistory.length > 1 && isStarterMessage(msg)) ? null : (
               <article key={`${msg.sender}-${index}`} className={`message-row ${msg.sender}`}>
                 <ChatAvatar sender={msg.sender} />
                 <div className="message-bubble">

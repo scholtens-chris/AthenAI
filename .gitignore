@@ -3,3 +3,8 @@ backend/.coverage
 backend/htmlcov/
 frontend/node_modules/
 backend/.athenai_sessions/
+__pycache__/
+*.pyc
+*.log
+.pytest_cache/
+.scratch/

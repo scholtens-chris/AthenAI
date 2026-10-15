@@ -34,6 +34,8 @@ PROSE_SOURCE_PATTERN = re.compile(r"\b(?:(?:source|excerpt|chunk)\s+)+#?(\d+)\b"
 # The model sometimes copies an excerpt heading's time range, e.g. [2:30-3:14].
 TIME_RANGE_PATTERN = re.compile(r"\[(\d+:\d{2}(?::\d{2})?)\s*[-–]\s*\d+:\d{2}(?::\d{2})?\]")
 WORD_PATTERN = re.compile(r"[a-z0-9']+")
+DESCRIPTION_PREFIX = re.compile(r"\((?:Visual|On screen|Sound)\)")
+PREVIEW_CHARS = 360
 
 
 def title_from_filename(filename: str) -> str:
@@ -262,9 +264,8 @@ def best_timestamp(source: dict, claim: str) -> Optional[float]:
     return best_time
 
 
-def citation_label(source: dict, claim: str, include_title: bool) -> str:
+def citation_label(source: dict, timestamp: Optional[float], include_title: bool) -> str:
     title = source.get("title") or title_from_filename(source.get("filename", "source"))
-    timestamp = best_timestamp(source, claim)
     if timestamp is None:
         return title
     if include_title:
@@ -277,10 +278,21 @@ def _claim_before(text: str, position: int) -> str:
     return text[start + 1:position]
 
 
-def render_citations(response: str, sources: list[dict], include_title: bool) -> str:
-    """Replace model citations like [2] or [Source: 2] with video names and timestamps."""
+def render_citations(
+    response: str, sources: list[dict], include_title: bool, cited: Optional[dict] = None
+) -> str:
+    """Replace model citations like [2] or [Source: 2] with video names and timestamps.
+
+    When `cited` is given, it is filled with {source index: [cited timestamps]} in citation order.
+    """
     if not sources:
         return response
+
+    def record(index: int, timestamp: Optional[float]):
+        if cited is not None:
+            times = cited.setdefault(index, [])
+            if timestamp is not None and timestamp not in times:
+                times.append(timestamp)
 
     def bracket_citation(match: re.Match) -> str:
         numbers = [int(number) for number in re.findall(r"\d+", match.group(1))]
@@ -288,7 +300,9 @@ def render_citations(response: str, sources: list[dict], include_title: bool) ->
         labels = []
         for number in numbers:
             if 1 <= number <= len(sources):
-                label = citation_label(sources[number - 1], claim, include_title)
+                timestamp = best_timestamp(sources[number - 1], claim)
+                record(number - 1, timestamp)
+                label = citation_label(sources[number - 1], timestamp, include_title)
                 if label not in labels:
                     labels.append(label)
         return f"({'; '.join(labels)})" if labels else ""
@@ -301,6 +315,7 @@ def render_citations(response: str, sources: list[dict], include_title: bool) ->
         claim = response[match.end():match.end() + 200]
         title = source.get("title") or title_from_filename(source.get("filename", "source"))
         timestamp = best_timestamp(source, claim)
+        record(number - 1, timestamp)
         if timestamp is None:
             return title
         place = title if include_title else "the video"
@@ -310,6 +325,59 @@ def render_citations(response: str, sources: list[dict], include_title: bool) ->
     rendered = PROSE_SOURCE_PATTERN.sub(prose_citation, rendered)
     rendered = TIME_RANGE_PATTERN.sub(r"(\1)", rendered)
     return re.sub(r"[ \t]+([.,;:])", r"\1", rendered)
+
+
+def _clip(text: str, limit: int) -> str:
+    text = re.sub(r"\s+", " ", text).strip()
+    if len(text) <= limit:
+        return text
+    return text[:limit].rsplit(" ", 1)[0].rstrip(" ,;:") + "…"
+
+
+def _timed_passages(text: str) -> list[tuple[float, str]]:
+    markers = list(TIME_MARKER_PATTERN.finditer(text))
+    passages = []
+    for index, marker in enumerate(markers):
+        passage_end = markers[index + 1].start() if index + 1 < len(markers) else len(text)
+        body = text[marker.end():passage_end].strip()
+        if body:
+            passages.append((parse_timestamp_label(marker.group(1)), body))
+    return passages
+
+
+def _passage_from(passages: list[tuple[float, str]], timestamp: Optional[float], limit: int) -> str:
+    """Read forward from the cited passage, skipping visual/on-screen descriptions after it."""
+    first = 0
+    if timestamp is not None:
+        first = next((index for index, (time, _) in enumerate(passages) if time >= timestamp), 0)
+    parts = []
+    for offset, (_, body) in enumerate(passages[first:]):
+        if offset and DESCRIPTION_PREFIX.match(body):
+            continue
+        parts.append(body)
+        if sum(len(part) + 1 for part in parts) >= limit:
+            break
+    return _clip(" ".join(parts), limit)
+
+
+def source_preview(source: dict, timestamps: Optional[list[float]] = None, limit: int = PREVIEW_CHARS) -> str:
+    """Show the passage a citation points to, rather than the start of the retrieved chunk."""
+    text = source.get("text", "")
+    passages = _timed_passages(text) if source.get("start") is not None else []
+    if not passages:
+        return _clip(text, limit)
+    times = list(dict.fromkeys(timestamps or [])) or [None]
+    if len(times) == 1:
+        return _passage_from(passages, times[0], limit)
+    per_time = max(limit // len(times), 160)
+    return "\n".join(f"[{format_timestamp(time)}] {_passage_from(passages, time, per_time)}" for time in times)
+
+
+def cited_source_label(source: dict, timestamps: Optional[list[float]] = None) -> str:
+    if not timestamps or source.get("start") is None:
+        return source_heading(source)
+    title = source.get("title") or title_from_filename(source.get("filename", "source"))
+    return f"{title}, {', '.join(format_timestamp(time) for time in sorted(set(timestamps)))}"
 
 
 def session_has_multiple_titles(documents: list[dict]) -> bool:

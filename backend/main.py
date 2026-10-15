@@ -34,11 +34,12 @@ from mediasite_utils import (
 from transcript_utils import (
     build_transcript_units,
     chunk_transcript_units,
+    cited_source_label,
     format_timestamp,
     parse_timed_segments,
     render_citations,
     session_has_multiple_titles,
-    source_heading,
+    source_preview,
     title_from_filename,
 )
 
@@ -104,46 +105,75 @@ STOPWORDS = {
     "was", "what", "when", "where", "which", "who", "why", "with", "you", "your",
 }
 
+# Checked in order; the first task with a matching pattern wins. Specific study artifacts come
+# before the generic find/explain keywords so "make a study guide for when we covered X" is
+# still a study guide.
 STUDY_TASK_PATTERNS = {
     "flashcards": (
-        r"\bflashcards?\b",
-        r"\bflash\s+cards?\b",
+        r"\bflash[\s-]*cards?\b",
+        r"\b(?:cue|index|study|revision|memory|review)\s+cards?\b",
+        r"\banki\b",
     ),
     "quiz": (
-        r"\bquiz\b",
+        r"\bquiz(?:z?es|z?ed|z?ing)?\b",
         r"\btest me\b",
-        r"\bpractice question",
+        r"\btest (?:my|our) (?:knowledge|understanding|memory|recall)\b",
+        r"\b(?:practice|mock|sample|review|exam|test)\s+(?:questions?|tests?|exams?|problems?)\b",
+        r"\bmultiple[\s-]*choice\b",
+        r"\bmcqs?\b",
+        r"\btrue[\s/-]*(?:or[\s-]*)?false\b",
+        r"\bask me (?:some |a few |\d+ )?questions\b",
+        r"\b(?:drill|question) me\b",
+        r"\bcheck my understanding\b",
+    ),
+    "study_guide": (
+        r"\bstudy[\s-]*guides?\b",
+        r"\breview\s+guides?\b",
+        r"\brevision\s+(?:guides?|notes|sheets?)\b",
+        r"\b(?:study|review|cheat|crib)\s+sheets?\b",
+        r"\bstudy\s+(?:notes|plan)\b",
+        r"\blearning\s+objectives?\b",
+        r"\bexam\s+prep\b",
+        r"\bprep(?:are)? (?:me )?for (?:the |my |our |an? )?(?:exams?|tests?|midterms?|finals?|quiz(?:zes)?)\b",
+        r"\bhelp me (?:study|revise|review)\b",
+    ),
+    "takeaways": (
+        r"\b(?:key\s+)?take[\s-]?aways?\b",
+        r"\b(?:main|key)\s+(?:points?|ideas?|concepts?)\b",
+        r"\bbig ideas?\b",
+        r"\bimportant (?:concepts?|points?|ideas?)\b",
+        r"\bmost important (?:things?|parts?)\b",
+        r"\bwhat should i (?:remember|know)\b",
     ),
     "summary": (
-        r"\bsummar(?:y|ize|ise|ise)\b",
+        r"\bsummar(?:y|ies|i[sz]e[sd]?|i[sz]ing)\b",
         r"\brecap\b",
+        r"\boverview\b",
+        r"\bsynopsis\b",
+        r"\btl;?dr\b",
+        r"\bgist\b",
+        r"\bin a nutshell\b",
         r"\bchapter\s+\d+\b",
     ),
     "find": (
         r"\bfind\b",
+        r"\blocate\b",
         r"\bwhere\b",
         r"\bwhen\b",
-        r"\btimestamp\b",
-        r"\bexplained?\b",
-        r"\bmentioned?\b",
-    ),
-    "takeaways": (
-        r"\bkey takeaways?\b",
-        r"\bmain points?\b",
-        r"\bbig ideas?\b",
-        r"\bimportant concepts?\b",
-    ),
-    "study_guide": (
-        r"\bstudy\s+guides?\b",
-        r"\bstudyguide\b",
-        r"\breview\s+guides?\b",
-        r"\blearning\s+objectives?\b",
+        r"\btimestamps?\b",
+        r"\bwhat time\b",
+        r"\bwhich (?:video|lecture|recording|part|section|slide)\b",
+        r"\bexplained\b",
+        r"\bmention(?:s|ed)?\b",
     ),
     "explain": (
-        r"\bexplain\b",
+        r"\bexplain(?:s|ing)?\b",
+        r"\bexplanation\b",
         r"\bteach me\b",
         r"\bwalk me through\b",
         r"\bhelp me understand\b",
+        r"\bbreak (?:it|this|that) down\b",
+        r"\beli5\b",
         r"\blecture\b",
     ),
 }
@@ -640,7 +670,7 @@ def retrieve_study_context(session_id: Optional[str], prompt: str, top_k: int) -
     )
     return context, task
 
-def public_source(source: dict) -> dict:
+def public_source(source: dict, cited_times: Optional[list[float]] = None) -> dict:
     return {
         "id": source["id"],
         "filename": source["filename"],
@@ -649,16 +679,25 @@ def public_source(source: dict) -> dict:
         "start": source.get("start"),
         "end": source.get("end"),
         "start_label": format_timestamp(source.get("start")),
-        "label": source_heading(source),
+        "cited_times": cited_times or [],
+        "label": cited_source_label(source, cited_times),
         "score": source["score"],
-        "preview": source["text"][:360],
+        "preview": source_preview(source, cited_times),
     }
 
 
-def present_response(session_id: Optional[str], response: str, context: list[dict]) -> str:
-    """Turn the model's numbered citations into video names and timestamps."""
+def present_response(session_id: Optional[str], response: str, context: list[dict]) -> tuple[str, list[dict]]:
+    """Turn the model's numbered citations into video names and timestamps.
+
+    Returns the rendered text and the sources the answer actually cited, in citation order. If the
+    model cited nothing, every retrieved source is returned so the answer is still traceable.
+    """
     documents = ensure_session(session_id).get("content", []) if session_id else []
-    return render_citations(response, context, include_title=session_has_multiple_titles(documents))
+    cited: dict[int, list[float]] = {}
+    text = render_citations(response, context, include_title=session_has_multiple_titles(documents), cited=cited)
+    if not cited:
+        return text, [public_source(source) for source in context]
+    return text, [public_source(context[index], times) for index, times in cited.items()]
 
 
 def public_chat_message(message: dict) -> dict:
@@ -1262,8 +1301,7 @@ async def chat(request: Request):
             len(context),
         )
         raise
-    chat_result["response"] = present_response(session_id, chat_result["response"], context)
-    sources = [public_source(source) for source in context]
+    chat_result["response"], sources = present_response(session_id, chat_result["response"], context)
     append_chat_message(
         session_id,
         {
@@ -1330,9 +1368,9 @@ async def quiz(request: Request):
     except Exception:
         logger.exception("quiz_llm_failed session_id=%s context_chunks=%s", session_id, len(context))
         raise
-    response = present_response(session_id, chat_result["response"], context)
+    response, sources = present_response(session_id, chat_result["response"], context)
     logger.info("quiz_complete session_id=%s response_chars=%s", session_id, len(response))
-    return {"quiz": response, "response": response, "usage": chat_result["usage"], "sources": [public_source(source) for source in context]}
+    return {"quiz": response, "response": response, "usage": chat_result["usage"], "sources": sources}
 
 @app.post("/summarize/")
 async def summarize(request: Request):
@@ -1351,9 +1389,9 @@ async def summarize(request: Request):
     except Exception:
         logger.exception("summarize_llm_failed session_id=%s context_chunks=%s", session_id, len(context))
         raise
-    response = present_response(session_id, chat_result["response"], context)
+    response, sources = present_response(session_id, chat_result["response"], context)
     logger.info("summarize_complete session_id=%s response_chars=%s", session_id, len(response))
-    return {"summary": response, "response": response, "usage": chat_result["usage"], "sources": [public_source(source) for source in context]}
+    return {"summary": response, "response": response, "usage": chat_result["usage"], "sources": sources}
 
 @app.post("/video-link/")
 async def video_link(request: Request):
@@ -1371,6 +1409,6 @@ async def video_link(request: Request):
     except Exception:
         logger.exception("video_link_llm_failed session_id=%s context_chunks=%s", session_id, len(context))
         raise
-    response = present_response(session_id, chat_result["response"], context)
+    response, sources = present_response(session_id, chat_result["response"], context)
     logger.info("video_link_complete session_id=%s response_chars=%s", session_id, len(response))
-    return {"links": [public_source(source) for source in context], "response": response, "usage": chat_result["usage"], "sources": [public_source(source) for source in context]}
+    return {"links": sources, "response": response, "usage": chat_result["usage"], "sources": sources}

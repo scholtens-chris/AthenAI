@@ -127,6 +127,54 @@ def test_document_indexing_retrieval_and_context_limits(monkeypatch):
     assert main.retrieve_context("s1", "cells", top_k=1) == []
 
 
+@pytest.mark.parametrize(
+    ("prompt", "task"),
+    [
+        ("Make flash-cards for chapter 2", "flashcards"),
+        ("Give me some flash card questions", "flashcards"),
+        ("Create index cards on enzymes", "flashcards"),
+        ("Export this as an Anki deck", "flashcards"),
+        ("Make me some quizzes", "quiz"),
+        ("Keep quizzing me", "quiz"),
+        ("Test my knowledge of mitosis", "quiz"),
+        ("Give me a practice test", "quiz"),
+        ("Write a mock exam", "quiz"),
+        ("Give me 5 exam questions", "quiz"),
+        ("Some multiple-choice questions please", "quiz"),
+        ("Do a few true/false", "quiz"),
+        ("Ask me 3 questions", "quiz"),
+        ("Drill me on the vocabulary", "quiz"),
+        ("Check my understanding of ATP", "quiz"),
+        ("Quiz me on where the cell divides", "quiz"),
+        ("Write a study-guide", "study_guide"),
+        ("Make a cheat sheet", "study_guide"),
+        ("I need revision notes", "study_guide"),
+        ("Help me prepare for my midterm", "study_guide"),
+        ("Help me study for the final", "study_guide"),
+        ("Study guide for when we covered osmosis", "study_guide"),
+        ("Summarize this into a study guide", "study_guide"),
+        ("What are the main ideas?", "takeaways"),
+        ("List the key concepts", "takeaways"),
+        ("Takeaways please", "takeaways"),
+        ("What should I remember from this?", "takeaways"),
+        ("Give me an overview", "summary"),
+        ("tl;dr", "summary"),
+        ("Summaries of each video", "summary"),
+        ("What's the gist?", "summary"),
+        ("Which video covers glycolysis?", "find"),
+        ("Locate the part about ATP", "find"),
+        ("Where is entropy explained?", "find"),
+        ("Give me an explanation of entropy", "explain"),
+        ("Break it down for me", "explain"),
+        ("ELI5 glycolysis", "explain"),
+        ("What is entropy?", "answer"),
+        ("Is it true that cells divide?", "answer"),
+    ],
+)
+def test_study_task_inference_variants(prompt, task):
+    assert main.infer_study_task(prompt) == task
+
+
 def test_study_task_inference_overview_full_context_and_public_source(monkeypatch):
     main.sessions.clear()
     monkeypatch.setattr(main, "MAX_CONTEXT_CHARS", 10)
@@ -483,7 +531,7 @@ def test_timed_transcript_upload_cites_video_and_time(monkeypatch):
 
     chat = client.post("/chat/", json={"session_id": session_id, "prompt": "What does mitosis split?"}).json()
     assert chat["response"] == "Mitosis splits the nucleus (2:05). See also the video at 0:01."
-    assert chat["sources"][0]["label"] == "Cell Lecture, 0:01-2:09"
+    assert chat["sources"][0]["label"] == "Cell Lecture, 0:01, 2:05"
 
     client.post("/upload/", data={"session_id": session_id}, files=[("files", ("Genetics.srt", srt, "text/plain"))])
     chat = client.post("/chat/", json={"session_id": session_id, "prompt": "What does mitosis split?"}).json()

@@ -665,6 +665,7 @@ body {
   padding: 0 10px 10px;
   color: var(--phoenix-muted);
   font-size: 0.86rem;
+  white-space: pre-line;
 }
 
 .typing {

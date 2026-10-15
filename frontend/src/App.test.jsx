@@ -121,8 +121,8 @@ describe("AthenAI app", () => {
 
     await screen.findByText("Mitosis");
     expect(screen.getByText(/Request: 12 tokens/i)).toBeInTheDocument();
-    expect(screen.getByText(/Answer: 7 tokens/i)).toBeInTheDocument();
-    expect(screen.getByText(/Total: 19/i)).toBeInTheDocument();
+    expect(screen.getByText(/Answer: 7 of 128 max tokens/i)).toBeInTheDocument();
+    expect(screen.getByText(/Total with request: 19/i)).toBeInTheDocument();
     expect(screen.getByText(/repaired format/i)).toBeInTheDocument();
     expect(screen.getByText(/hit output limit/i)).toBeInTheDocument();
 

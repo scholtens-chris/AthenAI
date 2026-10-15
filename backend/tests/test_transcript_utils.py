@@ -3,7 +3,9 @@ from transcript_utils import (
     chunk_transcript_units,
     format_timestamp,
     parse_timed_segments,
+    cited_source_label,
     render_citations,
+    source_preview,
     session_has_multiple_titles,
     source_heading,
     title_from_filename,
@@ -112,6 +114,38 @@ def test_render_citations_uses_best_matching_timestamp():
     assert render_citations("It is in Source excerpt 1 [1:00-1:44] where progress is measured.", sources, False) == (
         "It is in the video at 1:20 (1:00) where progress is measured."
     )
+
+
+def test_render_citations_records_cited_sources_in_order():
+    sources = [
+        {"title": "Talk", "start": 60, "text": "[1:00] Welcome.\n[1:20] The dashboard measures progress."},
+        {"title": "Unused", "start": 0, "text": "[0:00] Nothing relevant."},
+        {"title": "notes", "start": None, "text": "Mitosis notes"},
+    ]
+    cited = {}
+    render_citations("Mitosis [3]. The dashboard measures progress [1].", sources, False, cited=cited)
+    assert cited == {2: [], 0: [80.0]}
+
+
+def test_source_preview_starts_at_cited_passage_and_skips_later_descriptions():
+    source = {
+        "title": "Demo",
+        "start": 1195,
+        "text": (
+            "[19:55] (Visual) The man looks down.\n"
+            "[20:19] All right, ColorADD is a universal language.\n"
+            "[20:25] (Visual) He looks at the screen.\n"
+            "[20:30] It helps colorblind users read charts."
+        ),
+    }
+    assert source_preview(source, [1219.0]) == (
+        "All right, ColorADD is a universal language. It helps colorblind users read charts."
+    )
+    assert source_preview(source, [1219.0, 1230.0]).splitlines()[1] == "[20:30] It helps colorblind users read charts."
+    assert source_preview(source, [1219.0], limit=30) == "All right, ColorADD is a…"
+    assert cited_source_label(source, [1230.0, 1219.0]) == "Demo, 20:19, 20:30"
+    assert cited_source_label({**source, "end": 1230}) == "Demo, 19:55-20:30"
+    assert source_preview({"title": "notes", "start": None, "text": "alpha  beta"}) == "alpha beta"
 
 
 def test_session_has_multiple_titles():
