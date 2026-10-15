@@ -443,7 +443,7 @@ function App() {
       });
       setStatus(
         error.name === "AbortError"
-          ? "The model is still busy after 2 minutes. Try a shorter question or restart the API with fewer output tokens."
+          ? "The model is still busy after 4 minutes. Try a shorter question or restart the API with fewer output tokens."
           : "Could not reach the chat service. Make sure the AthenAI API is running.",
       );
     } finally {
@@ -671,9 +671,7 @@ function App() {
                     <div className="source-list" aria-label="Retrieved sources">
                       {msg.sources.map((source, sourceIndex) => (
                         <details key={source.id || `${source.filename}-${sourceIndex}`}>
-                          <summary>
-                            [{sourceIndex + 1}] {source.filename}
-                          </summary>
+                          <summary>{source.label || source.title || source.filename}</summary>
                           <p>{source.preview}</p>
                         </details>
                       ))}

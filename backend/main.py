@@ -31,6 +31,16 @@ from mediasite_utils import (
     odata_path,
     presentation_filename,
 )
+from transcript_utils import (
+    build_transcript_units,
+    chunk_transcript_units,
+    format_timestamp,
+    parse_timed_segments,
+    render_citations,
+    session_has_multiple_titles,
+    source_heading,
+    title_from_filename,
+)
 
 
 def configure_logging() -> logging.Logger:
@@ -382,25 +392,40 @@ def chunk_text(text: str, chunk_words: int = CHUNK_WORDS, overlap: int = CHUNK_O
             break
     return chunks
 
-def add_document_to_session(session_id: str, filename: str, text: str) -> int:
+def add_document_to_session(session_id: str, filename: str, text: str, segments: Optional[list[dict]] = None) -> int:
     session = ensure_session(session_id)
     document_id = str(uuid.uuid4())
-    cleaned_text = re.sub(r"\s+", " ", text).strip()
-    chunks = chunk_text(cleaned_text)
+    title = title_from_filename(filename)
+    if segments:
+        # Timed transcripts are chunked on passage boundaries so citations can point to a time.
+        chunks = chunk_transcript_units(build_transcript_units(segments), CHUNK_WORDS)
+        cleaned_text = "\n".join(chunk["text"] for chunk in chunks)
+    else:
+        cleaned_text = re.sub(r"\s+", " ", text).strip()
+        chunks = [{"text": chunk, "start": None, "end": None} for chunk in chunk_text(cleaned_text)]
     if not chunks:
         logger.warning("document_skipped_no_text session_id=%s filename=%s", session_id, filename)
         return 0
 
-    session["content"].append({"id": document_id, "filename": filename, "text": cleaned_text})
+    session["content"].append({
+        "id": document_id,
+        "filename": filename,
+        "title": title,
+        "timed": bool(segments),
+        "text": cleaned_text,
+    })
 
     for index, chunk in enumerate(chunks):
-        tokens = tokenize(chunk)
+        tokens = tokenize(chunk["text"])
         session["chunks"].append({
             "id": f"{document_id}:{index}",
             "document_id": document_id,
             "filename": filename,
+            "title": title,
             "chunk_index": index,
-            "text": chunk,
+            "start": chunk["start"],
+            "end": chunk["end"],
+            "text": chunk["text"],
             "tokens": Counter(tokens),
             "token_count": max(1, len(tokens)),
         })
@@ -453,13 +478,7 @@ def retrieve_context(session_id: Optional[str], query: str, top_k: int = DEFAULT
         if not text:
             break
         used_chars += len(text)
-        results.append({
-            "id": chunk["id"],
-            "filename": chunk["filename"],
-            "chunk_index": chunk["chunk_index"],
-            "score": round(score, 4),
-            "text": text,
-        })
+        results.append(material_context_entry(chunk, round(score, 4), text))
         if used_chars >= MAX_CONTEXT_CHARS:
             break
     logger.info(
@@ -546,13 +565,7 @@ def retrieve_session_overview(session_id: Optional[str], limit: int = OVERVIEW_C
         if not text:
             break
         used_chars += len(text)
-        results.append({
-            "id": chunk["id"],
-            "filename": chunk["filename"],
-            "chunk_index": chunk["chunk_index"],
-            "score": 0,
-            "text": text,
-        })
+        results.append(material_context_entry(chunk, 0, text))
         if used_chars >= MAX_CONTEXT_CHARS:
             break
     return results
@@ -561,7 +574,10 @@ def material_context_entry(chunk: dict, score: float, text: str) -> dict:
     return {
         "id": chunk["id"],
         "filename": chunk["filename"],
+        "title": chunk.get("title") or title_from_filename(chunk["filename"]),
         "chunk_index": chunk["chunk_index"],
+        "start": chunk.get("start"),
+        "end": chunk.get("end"),
         "score": score,
         "text": text,
     }
@@ -628,10 +644,21 @@ def public_source(source: dict) -> dict:
     return {
         "id": source["id"],
         "filename": source["filename"],
+        "title": source.get("title") or title_from_filename(source["filename"]),
         "chunk_index": source["chunk_index"],
+        "start": source.get("start"),
+        "end": source.get("end"),
+        "start_label": format_timestamp(source.get("start")),
+        "label": source_heading(source),
         "score": source["score"],
         "preview": source["text"][:360],
     }
+
+
+def present_response(session_id: Optional[str], response: str, context: list[dict]) -> str:
+    """Turn the model's numbered citations into video names and timestamps."""
+    documents = ensure_session(session_id).get("content", []) if session_id else []
+    return render_citations(response, context, include_title=session_has_multiple_titles(documents))
 
 
 def public_chat_message(message: dict) -> dict:
@@ -798,7 +825,7 @@ async def get_session(session_id: str):
         "expires_at": session["expires_at"],
         "chat_history": [public_chat_message(message) for message in session.get("chat_history", [])],
         "documents": [
-            {"id": item["id"], "filename": item["filename"]}
+            {"id": item["id"], "filename": item["filename"], "title": item.get("title") or title_from_filename(item["filename"])}
             for item in session.get("content", [])
         ],
         "chunk_count": len(session.get("chunks", [])),
@@ -931,7 +958,8 @@ async def upload_content(session_id: Optional[str] = Form(None), files: List[Upl
                 continue
             for f in extracted:
                 text = parse_file(f["filename"], f["content"])
-                chunks_added = add_document_to_session(session_id, f["filename"], text)
+                segments = parse_timed_segments(f["filename"], f["content"])
+                chunks_added = add_document_to_session(session_id, f["filename"], text, segments)
                 if chunks_added:
                     indexed_files.append(f["filename"])
                     added_chunk_count += chunks_added
@@ -939,7 +967,8 @@ async def upload_content(session_id: Optional[str] = Form(None), files: List[Upl
                     skipped_files.append(f["filename"])
         else:
             text = parse_file(fname, content)
-            chunks_added = add_document_to_session(session_id, fname, text)
+            segments = parse_timed_segments(fname, content)
+            chunks_added = add_document_to_session(session_id, fname, text, segments)
             if chunks_added:
                 indexed_files.append(fname)
                 added_chunk_count += chunks_added
@@ -1233,6 +1262,7 @@ async def chat(request: Request):
             len(context),
         )
         raise
+    chat_result["response"] = present_response(session_id, chat_result["response"], context)
     sources = [public_source(source) for source in context]
     append_chat_message(
         session_id,
@@ -1300,7 +1330,7 @@ async def quiz(request: Request):
     except Exception:
         logger.exception("quiz_llm_failed session_id=%s context_chunks=%s", session_id, len(context))
         raise
-    response = chat_result["response"]
+    response = present_response(session_id, chat_result["response"], context)
     logger.info("quiz_complete session_id=%s response_chars=%s", session_id, len(response))
     return {"quiz": response, "response": response, "usage": chat_result["usage"], "sources": [public_source(source) for source in context]}
 
@@ -1321,7 +1351,7 @@ async def summarize(request: Request):
     except Exception:
         logger.exception("summarize_llm_failed session_id=%s context_chunks=%s", session_id, len(context))
         raise
-    response = chat_result["response"]
+    response = present_response(session_id, chat_result["response"], context)
     logger.info("summarize_complete session_id=%s response_chars=%s", session_id, len(response))
     return {"summary": response, "response": response, "usage": chat_result["usage"], "sources": [public_source(source) for source in context]}
 
@@ -1341,6 +1371,6 @@ async def video_link(request: Request):
     except Exception:
         logger.exception("video_link_llm_failed session_id=%s context_chunks=%s", session_id, len(context))
         raise
-    response = chat_result["response"]
+    response = present_response(session_id, chat_result["response"], context)
     logger.info("video_link_complete session_id=%s response_chars=%s", session_id, len(response))
     return {"links": [public_source(source) for source in context], "response": response, "usage": chat_result["usage"], "sources": [public_source(source) for source in context]}

@@ -460,6 +460,36 @@ def test_upload_skips_empty_plain_file_and_chat_handles_empty_retrieval(monkeypa
     assert chat.json()["response"].startswith("I could not find relevant uploaded material")
 
 
+def test_timed_transcript_upload_cites_video_and_time(monkeypatch):
+    main.sessions.clear()
+    fake_llm = FakeLLM()
+    fake_llm.chat_with_usage = lambda prompt, **_kwargs: {
+        "response": "Mitosis splits the nucleus [1]. See also source 1.",
+        "usage": {"prompt_tokens": 1, "completion_tokens": 1, "total_tokens": 2},
+    }
+    monkeypatch.setattr(main, "qwen_llm", fake_llm)
+    client = TestClient(main.app)
+    srt = (
+        b"1\n00:00:01,000 --> 00:00:04,000\nWelcome to biology.\n\n"
+        b"2\n00:02:05,000 --> 00:02:09,000\nMitosis splits the nucleus into two.\n"
+    )
+
+    upload = client.post("/upload/", files=[("files", ("Cell_Lecture_transcript.srt", srt, "text/plain"))])
+    session_id = upload.json()["session_id"]
+    chunk = main.sessions[session_id]["chunks"][0]
+    assert chunk["title"] == "Cell Lecture"
+    assert chunk["start"] == 1.0
+    assert "[2:05] Mitosis splits the nucleus into two." in chunk["text"]
+
+    chat = client.post("/chat/", json={"session_id": session_id, "prompt": "What does mitosis split?"}).json()
+    assert chat["response"] == "Mitosis splits the nucleus (2:05). See also the video at 0:01."
+    assert chat["sources"][0]["label"] == "Cell Lecture, 0:01-2:09"
+
+    client.post("/upload/", data={"session_id": session_id}, files=[("files", ("Genetics.srt", srt, "text/plain"))])
+    chat = client.post("/chat/", json={"session_id": session_id, "prompt": "What does mitosis split?"}).json()
+    assert "(Cell Lecture, 2:05)" in chat["response"] or "(Genetics, 2:05)" in chat["response"]
+
+
 def test_sessions_persist_to_short_lived_disk_store(monkeypatch):
     monkeypatch.setattr(main, "qwen_llm", FakeLLM())
     client = TestClient(main.app)

@@ -105,7 +105,7 @@ describe("AthenAI app", () => {
             hit_token_limit: true,
             estimated: false,
           },
-          sources: [{ id: "s1", filename: "notes.txt", preview: "Mitosis source" }],
+          sources: [{ id: "s1", filename: "notes.txt", label: "Cell Lecture, 2:05-3:10", preview: "Mitosis source" }],
         }),
       );
 
@@ -127,7 +127,7 @@ describe("AthenAI app", () => {
     expect(screen.getByText(/hit output limit/i)).toBeInTheDocument();
 
     const details = screen.getByLabelText("Retrieved sources");
-    expect(within(details).getByText(/\[1\] notes.txt/i)).toBeInTheDocument();
+    expect(within(details).getByText("Cell Lecture, 2:05-3:10")).toBeInTheDocument();
     expect(window.fetch.mock.calls[1][1].body).toBe(
       JSON.stringify({ prompt: "Explain mitosis", session_id: "session-1" }),
     );
